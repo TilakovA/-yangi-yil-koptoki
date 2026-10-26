@@ -14,18 +14,27 @@ var haqidaPanel = document.getElementById("haqidaPanel");
 var kontaktPanel = document.getElementById("kontaktPanel");
 
 // ---- Rejalar ----
+// Osonroq o'ynalishi uchun: tezlik pasaytirildi, qiyinlashish sekinlashtirildi,
+// to'siqlar orasi kengaytirildi va jonlar soni oshirildi.
 var REJIMLAR = {
-  klassik: { ikonka: "🏙️", nom: "Klassik",      boshTezlik: 3,   oshish: 0.5, masofa: 140, jonlar: 2 },
-  boron:   { ikonka: "❄️", nom: "Qor bo\u2019roni", boshTezlik: 4.2, oshish: 0.7, masofa: 120, jonlar: 2 },
-  tungi:   { ikonka: "🌙", nom: "Tungi rejim",   boshTezlik: 3.2, oshish: 0.5, masofa: 130, jonlar: 3 }
+  klassik: { ikonka: "🏙️", nom: "Klassik",      boshTezlik: 2.5, oshish: 0.35, masofa: 165, jonlar: 3 },
+  boron:   { ikonka: "❄️", nom: "Qor bo\u2019roni", boshTezlik: 3.5, oshish: 0.5,  masofa: 145, jonlar: 3 },
+  tungi:   { ikonka: "🌙", nom: "Tungi rejim",   boshTezlik: 2.7, oshish: 0.35, masofa: 155, jonlar: 4 }
 };
 var rejim = "klassik";
+
+// ---- O'yin maydoni o'lchamlari (ekranga qarab dinamik) ----
+var VIRTUAL_W = 400;          // kenglik doim shu holicha qoladi
+var VIRTUAL_H = 600;          // balandlik ekran nisbatiga qarab qayta hisoblanadi
+var ORALIQ = 160;             // to'qlar orasidagi tirqish (osonroq o'tish uchun kengroq)
+var YER_CHEGARASI = VIRTUAL_H - 36;
+var BAL_MIN = 70, BAL_MAX = 370;
 
 // ---- Holat ----
 var y = 250, tezlik = 0, toqlar = [], konfetlar = [];
 var ball = 0, oynayapti = false, toqTezligi = 3;
 var jonlar = 2, invuln = 0, sekinVaqti = 0, sovgalarSoni = 0, kadrlar = 0;
-var gravitatsiya = 0.5, sakrashKuchi = -8.5;
+var gravitatsiya = 0.42, sakrashKuchi = -7.6;
 var SHARCHA_RANGLARI = ["#e53935", "#43a047", "#ffd54f", "#42a5f5", "#ab47bc", "#ffffff"];
 
 // ---- Rekord ----
@@ -184,7 +193,7 @@ function panelYop() {
 // ---- Boshlash ----
 function boshlash() {
   var sozlama = REJIMLAR[rejim];
-  y = 250; tezlik = 0; ball = 0; toqTezligi = sozlama.boshTezlik;
+  y = Math.round(VIRTUAL_H / 2) - 50; tezlik = 0; ball = 0; toqTezligi = sozlama.boshTezlik;
   jonlar = sozlama.jonlar; invuln = 0; sekinVaqti = 0; sovgalarSoni = 0; kadrlar = 0;
   toqlar.forEach(function (t) { t.juftlik.remove(); });
   toqlar = [];
@@ -238,19 +247,20 @@ function sharchalarIlish(el, yuqoriMi, balandlik) {
 }
 
 function toqQosh() {
-  var oraliq = 140;
-  var yuqoriBalandlik = Math.random() * 320 + 60;
+  var oraliq = ORALIQ;
+  var yuqoriBalandlik = Math.random() * (BAL_MAX - BAL_MIN) + BAL_MIN;
   var juftlik = document.createElement("div");
   juftlik.className = "toqlarJuftligi";
-  juftlik.style.left = "400px";
+  juftlik.style.left = VIRTUAL_W + "px";
+  juftlik.style.height = VIRTUAL_H + "px";
   var el1 = document.createElement("div");
   el1.className = "toq past";
   el1.style.height = yuqoriBalandlik + "px";
   sharchalarIlish(el1, true, yuqoriBalandlik);
   var el2 = document.createElement("div");
   el2.className = "toq yuqori";
-  el2.style.height = (600 - yuqoriBalandlik - oraliq) + "px";
-  sharchalarIlish(el2, false, 600 - yuqoriBalandlik - oraliq);
+  el2.style.height = (VIRTUAL_H - yuqoriBalandlik - oraliq) + "px";
+  sharchalarIlish(el2, false, VIRTUAL_H - yuqoriBalandlik - oraliq);
   juftlik.appendChild(el1);
   juftlik.appendChild(el2);
 
@@ -267,7 +277,7 @@ function toqQosh() {
   }
   oyin.appendChild(juftlik);
   toqlar.push({
-    juftlik: juftlik, x: 400, yuqoriBalandlik: yuqoriBalandlik,
+    juftlik: juftlik, x: VIRTUAL_W, yuqoriBalandlik: yuqoriBalandlik,
     ogish: 0, faza: Math.random() * 6.28,
     harakat: false, sovga: sovga, sovgaOlindi: false, hisoblangan: false
   });
@@ -325,7 +335,7 @@ function sikl() {
     y += tezlik;
 
     var sozlama = REJIMLAR[rejim];
-    var chegar = 400 - sozlama.masofa;
+    var chegar = VIRTUAL_W - sozlama.masofa;
     if (toqlar.length === 0 || toqlar[toqlar.length - 1].x < chegar) toqQosh();
 
     var joriyTezlik = sekinVaqti > 0 ? toqTezligi * 0.55 : toqTezligi;
@@ -372,7 +382,7 @@ function sikl() {
       // To'qnashuv
       if (t.x < 116 && t.x + 60 > 80) {
         if (invuln === 0) {
-          if (y < t.yuqoriBalandlik + t.ogish || y + 36 > t.yuqoriBalandlik + 140 + t.ogish) {
+          if (y < t.yuqoriBalandlik + t.ogish || y + 36 > t.yuqoriBalandlik + ORALIQ + t.ogish) {
             tegish();
           }
         }
@@ -380,7 +390,7 @@ function sikl() {
 
       // Sovg'ani yig'ish
       if (t.sovga && !t.sovgaOlindi) {
-        var gy = t.yuqoriBalandlik + t.ogish + 70;
+        var gy = t.yuqoriBalandlik + t.ogish + ORALIQ / 2;
         if (Math.abs(t.x + 30 - 98) < 30 && Math.abs(gy - (y + 18)) < 30) {
           t.sovgaOlindi = true;
           t.sovga.remove();
@@ -432,9 +442,9 @@ function sikl() {
     }
 
     // Yer va osmon
-    if (y > 564 || y < 0) {
+    if (y > YER_CHEGARASI || y < 0) {
       if (jonlar <= 1) { jonlar = 0; jonlarYangilash(); yakunlash(); }
-      else { jonlar = 1; jonlarYangilash(); invuln = 100; koptok.classList.add("mir"); zarbaOvozi(); y = 500; tezlik = 0; }
+      else { jonlar = 1; jonlarYangilash(); invuln = 100; koptok.classList.add("mir"); zarbaOvozi(); y = YER_CHEGARASI - 64; tezlik = 0; }
     }
 
     // Koptok izi
@@ -518,10 +528,29 @@ oyin.addEventListener("touchstart", function (e) {
   sakrash();
 }, { passive: false });
 
-// ---- Mobil ekranlarga moslash ----
+// ---- Ekranga moslash ----
+// Mobilda (kichik ekranlarda): o'yin balandligi aynan qurilma nisbatiga mos
+// hisoblanadi va kenglik bo'yicha masshtablanadi — natijada ekran TO'LIQ
+// qoplanadi, na bo'sh joy, na kesilish bo'ladi.
+// Kompyuter/planshetda: klassik 400x600 karta o'lchami saqlanib qoladi.
+var tashqiEl = document.getElementById("tashqi");
 function moslash() {
-  var s = Math.min(window.innerWidth / 440, window.innerHeight / 660, 1.1);
-  document.getElementById("tashqi").style.transform = "scale(" + s + ")";
+  var devW = window.innerWidth, devH = window.innerHeight;
+  var s;
+  if (devW <= 820) {
+    VIRTUAL_H = Math.max(520, Math.min(1000, Math.round(VIRTUAL_W * (devH / devW))));
+    oyin.style.height = VIRTUAL_H + "px";
+    s = devW / VIRTUAL_W;
+  } else {
+    VIRTUAL_H = 600;
+    oyin.style.height = "600px";
+    s = Math.min(devW / VIRTUAL_W, devH / VIRTUAL_H, 1.1);
+  }
+  ORALIQ = Math.round(VIRTUAL_H * 0.27);
+  YER_CHEGARASI = VIRTUAL_H - 36;
+  BAL_MIN = Math.round(VIRTUAL_H * 0.12);
+  BAL_MAX = Math.round(VIRTUAL_H - ORALIQ - VIRTUAL_H * 0.12);
+  tashqiEl.style.transform = "scale(" + s + ")";
 }
 window.addEventListener("resize", moslash);
 window.addEventListener("orientationchange", function () { setTimeout(moslash, 200); });
