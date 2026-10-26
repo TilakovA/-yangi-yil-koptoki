@@ -1,6 +1,6 @@
 // Keshning nomi — fayllarni o'zgartirganingdan keyin versiyani oshirsang,
 // eski kesh avtomatik tozalanadi va foydalanuvchi yangi fayllarni oladi.
-const KESH_NOMI = "koptoki-v1";
+const KESH_NOMI = "koptoki-v2";
 
 // Offline ishlashi uchun saqlanadigan fayllar
 const KESHLANADIGAN_FAYLLAR = [

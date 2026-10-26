@@ -506,7 +506,13 @@ document.addEventListener("keydown", function (e) {
   }
 });
 oyin.addEventListener("mousedown", sakrash);
-oyin.addEventListener("touchstart", function (e) { e.preventDefault(); sakrash(); });
+oyin.addEventListener("touchstart", function (e) {
+  // O'yin faol bo'lmasa (menyu/panel ochiq), tugmalar o'z holicha bosilishi kerak —
+  // shuning uchun preventDefault faqat o'yin davomida, sakrash uchungina ishlatiladi.
+  if (!oynayapti) return;
+  e.preventDefault();
+  sakrash();
+}, { passive: false });
 
 // ---- Mobil ekranlarga moslash ----
 function moslash() {
