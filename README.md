@@ -43,6 +43,8 @@ So'ng brauzerda `http://localhost:8000` manzilini och.
 
 ## Dasturchi bilan bog'lanish
 
-📧 Email: [space.nebulix@gmail.com](mailto:space.nebulix@gmail.com)
+- 📧 Email: [space.nebulix@gmail.com](mailto:space.nebulix@gmail.com)
+- 💬 Telegram: [@TmAlonee_01](https://t.me/TmAlonee_01)
+- 🌐 GitHub: [TilakovA](https://github.com/TilakovA)
 
 Fikr-mulohaza, xatolar yoki hamkorlik takliflari uchun bemalol yozing.
