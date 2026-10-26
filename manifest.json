@@ -1,6 +1,6 @@
 {
-  "name": "Yangi yil koptoki",
-  "short_name": "Koptoki",
+  "name": "Yangi Yil Koptoki",
+  "short_name": "Yangi Yil Koptoki",
   "description": "Koptokni to'siqlardan o'tkazadigan mini o'yin",
   "start_url": "./index.html",
   "scope": "./",
