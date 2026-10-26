@@ -145,7 +145,7 @@ function rejimTugmasi(r) {
     "\" data-rejim=\"" + r + "\">" + t.ikonka + " " + t.nom + "</button>";
 }
 function menuHtml() {
-  return "<h1>Yangil Koptoki 🎄</h1>" +
+  return "<h1>Yangi Yil Koptoki 🎄</h1>" +
     "<p>Probel bosing yoki ekranni bosib sakrating</p>" +
     "<p>Konfet tayoqchalarga tegmang, sovg'alar yig'ing!</p>" +
     "<button onclick=\"boshlash()\">Boshlash</button>" +
