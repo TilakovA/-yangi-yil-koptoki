@@ -2,7 +2,7 @@
 html, body {
   height: 100%;
   overscroll-behavior: none; /* pull-to-refresh / qaytish effektini o'chiradi */
-  touch-action: none;        /* pinch-zoom va scroll-ni o'chiradi */
+  touch-action: manipulation; /* pinch-zoom/qo'sh-bosishni o'chiradi, lekin teginish signalini bloklamaydi */
   -webkit-user-select: none; user-select: none; /* matn tanlanishini o'chiradi */
 }
 body {

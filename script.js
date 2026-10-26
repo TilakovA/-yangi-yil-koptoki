@@ -505,11 +505,15 @@ document.addEventListener("keydown", function (e) {
     else if (!xabar.classList.contains("hidden")) boshlash();
   }
 });
-oyin.addEventListener("mousedown", sakrash);
+oyin.addEventListener("mousedown", function (e) {
+  if (e.target.closest("button, a")) return;
+  sakrash();
+});
 oyin.addEventListener("touchstart", function (e) {
-  // O'yin faol bo'lmasa (menyu/panel ochiq), tugmalar o'z holicha bosilishi kerak —
-  // shuning uchun preventDefault faqat o'yin davomida, sakrash uchungina ishlatiladi.
+  // O'yin faol bo'lmasa (menyu/panel ochiq) yoki tugma/havola bosilgan bo'lsa,
+  // ularga o'z holicha ishlashiga ruxsat beramiz — faqat sof o'yin maydonida sakraymiz.
   if (!oynayapti) return;
+  if (e.target.closest("button, a")) return;
   e.preventDefault();
   sakrash();
 }, { passive: false });
