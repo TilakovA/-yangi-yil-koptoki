@@ -145,9 +145,11 @@ function rejimTugmasi(r) {
     "\" data-rejim=\"" + r + "\">" + t.ikonka + " " + t.nom + "</button>";
 }
 function kontaktTugmalari() {
+  var infoSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"></circle><line x1=\"12\" y1=\"11\" x2=\"12\" y2=\"16.5\"></line><circle cx=\"12\" cy=\"7.6\" r=\"1.15\" fill=\"currentColor\" stroke=\"none\"></circle></svg>";
+  var mailSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"5.5\" width=\"18\" height=\"13\" rx=\"2.2\"></rect><path d=\"M4 7l8 6 8-6\"></path></svg>";
   return "<div class=\"utility-qatori\">" +
-    "<button class=\"ikonka-tugma\" title=\"O\u2019yin haqida\" onclick=\"panelKorsat('haqidaPanel')\">ℹ️</button>" +
-    "<button class=\"ikonka-tugma\" title=\"Bog\u2019lanish\" onclick=\"panelKorsat('kontaktPanel')\">✉️</button>" +
+    "<button class=\"ikonka-tugma\" title=\"O\u2019yin haqida\" onclick=\"panelKorsat('haqidaPanel')\">" + infoSvg + "</button>" +
+    "<button class=\"ikonka-tugma\" title=\"Bog\u2019lanish\" onclick=\"panelKorsat('kontaktPanel')\">" + mailSvg + "</button>" +
     "</div>";
 }
 function menuHtml() {

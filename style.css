@@ -252,19 +252,20 @@ button.liquid.tanlangan {
 }
 
 /* Ikkilamchi amallar — kichik dumaloq ikonka-tugmalar (O'yin haqida, Bog'lanish) */
-.utility-qatori { display: flex; flex-direction: row; gap: 16px; margin-top: 18px; }
+.utility-qatori { display: flex; flex-direction: row; gap: 10px; margin-top: 14px; }
 button.ikonka-tugma {
-  margin-top: 0; width: 52px; height: 52px; padding: 0;
-  border-radius: 50%; font-size: 22px; line-height: 1;
+  margin-top: 0; width: 36px; height: 36px; padding: 0;
+  border-radius: 50%; line-height: 1;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.5);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  box-shadow: inset 0 1px 1px rgba(255,255,255,.45), 0 4px 10px rgba(0,0,0,.25);
-  transition: transform .12s ease;
+  color: rgba(255,255,255,.75); background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.22);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  box-shadow: none;
+  transition: transform .12s ease, background .15s ease, color .15s ease;
 }
+button.ikonka-tugma svg { width: 17px; height: 17px; }
 button.ikonka-tugma:active { transform: scale(.86); }
-button.ikonka-tugma:hover { transform: translateY(-1px) scale(1.05); }
+button.ikonka-tugma:hover { transform: translateY(-1px); background: rgba(255,255,255,.16); color: #fff; }
 button.liquid::before {
   content: ""; position: absolute; top: -60%; left: -80%;
   width: 55%; height: 220%;
