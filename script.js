@@ -507,8 +507,7 @@ function yakunlash() {
       "<p>Bugungi eng yaxshi natija: <b>" + bugungiEngYaxshi + "</b></p>" +
       "<p>Top 5: " + top5.join(", ") + "</p>" +
       "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Yana o\u2019ynash</button>" +
-      "<button class=\"liquid rejim\" onclick=\"menuQaytish()\">🏠 Bosh menyu</button>" +
-      kontaktTugmalari();
+      "<button class=\"liquid rejim\" onclick=\"menuQaytish()\">🏠 Bosh menyu</button>";
     tolqinlarniUlash();
   }, 650);
 }
