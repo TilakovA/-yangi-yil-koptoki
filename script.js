@@ -26,7 +26,7 @@ var rejim = "klassik";
 // ---- O'yin maydoni o'lchamlari (ekranga qarab dinamik) ----
 var VIRTUAL_W = 400;          // kenglik doim shu holicha qoladi
 var VIRTUAL_H = 600;          // balandlik ekran nisbatiga qarab qayta hisoblanadi
-var ORALIQ = 160;             // to'qlar orasidagi tirqish (osonroq o'tish uchun kengroq)
+var ORALIQ = 160;             // to'plar orasidagi tirqish (osonroq o'tish uchun kengroq)
 var YER_CHEGARASI = VIRTUAL_H - 36;
 var BAL_MIN = 70, BAL_MAX = 370;
 
@@ -144,16 +144,21 @@ function rejimTugmasi(r) {
   return "<button class=\"liquid rejim" + (rejim === r ? " tanlangan" : "") +
     "\" data-rejim=\"" + r + "\">" + t.ikonka + " " + t.nom + "</button>";
 }
+function kontaktTugmalari() {
+  return "<div class=\"utility-qatori\">" +
+    "<button class=\"ikonka-tugma\" title=\"O\u2019yin haqida\" onclick=\"panelKorsat('haqidaPanel')\">ℹ️</button>" +
+    "<button class=\"ikonka-tugma\" title=\"Bog\u2019lanish\" onclick=\"panelKorsat('kontaktPanel')\">✉️</button>" +
+    "</div>";
+}
 function menuHtml() {
   return "<h1>Yangi Yil Koptoki 🎄</h1>" +
     "<p>Probel bosing yoki ekranni bosib sakrating</p>" +
     "<p>Konfet tayoqchalarga tegmang, sovg'alar yig'ing!</p>" +
-    "<button onclick=\"boshlash()\">Boshlash</button>" +
-    "<div class=\"rejimlar\">" +
+    "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Boshlash</button>" +
+    "<div class=\"rejim-qatori\">" +
       rejimTugmasi("klassik") + rejimTugmasi("boron") + rejimTugmasi("tungi") +
     "</div>" +
-    "<button class=\"liquid haqida\" onclick=\"panelKorsat('haqidaPanel')\">ℹ️ O\u2019yin haqida</button>" +
-    "<button class=\"liquid kontakt\" onclick=\"panelKorsat('kontaktPanel')\">✉️ Bog\u2019lanish</button>";
+    kontaktTugmalari();
 }
 function rejimlarniUlash() {
   xabar.querySelectorAll(".rejim").forEach(function (btn) {
@@ -232,7 +237,7 @@ function sakrash() {
   }
 }
 
-// ---- To'qlar va sovg'alar ----
+// ---- To'plar va sovg'alar ----
 function sharchalarIlish(el, yuqoriMi, balandlik) {
   var soni = Math.max(1, Math.floor(balandlik / 90));
   for (var i = 0; i < soni; i++) {
@@ -344,7 +349,7 @@ function sikl() {
       t.x -= joriyTezlik;
       t.juftlik.style.left = t.x + "px";
 
-      // 4-darajadan to'qlar tebranadi
+      // 4-darajadan to'plar tebranadi
       if (Math.floor(ball / 5) + 1 >= 4) t.harakat = true;
       if (t.harakat) {
         t.faza += 0.035;
@@ -499,10 +504,9 @@ function yakunlash() {
       "<p>Rekord: <b>" + rekord + "</b>" + (yangiRekord ? " — Yangi rekord! 🏆" : "") + "</p>" +
       "<p>Bugungi eng yaxshi natija: <b>" + bugungiEngYaxshi + "</b></p>" +
       "<p>Top 5: " + top5.join(", ") + "</p>" +
-      "<button onclick=\"boshlash()\">Yana o\u2019ynash</button>" +
+      "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Yana o\u2019ynash</button>" +
       "<button class=\"liquid rejim\" onclick=\"menuQaytish()\">🏠 Bosh menyu</button>" +
-      "<button class=\"liquid haqida\" onclick=\"panelKorsat('haqidaPanel')\">ℹ️ O\u2019yin haqida</button>" +
-      "<button class=\"liquid kontakt\" onclick=\"panelKorsat('kontaktPanel')\">✉️ Bog\u2019lanish</button>";
+      kontaktTugmalari();
     tolqinlarniUlash();
   }, 650);
 }

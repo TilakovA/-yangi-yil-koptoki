@@ -183,9 +183,13 @@ body {
   background: rgba(10,10,35,.6); color: #fff; text-align: center;
   padding: 10px; overflow-y: auto;
 }
-#xabar h1 { font-size: 24px; margin-bottom: 10px; }
+#xabar h1 { font-size: 26px; margin-bottom: 10px; }
 #xabar p { font-size: 14px; margin: 3px 0; }
 #xabar.hidden { display: none; }
+
+/* O'yinga xos quvnoq shrift — sarlavha va tugmalarda */
+h1, h2, button { font-family: 'Baloo 2', Arial, sans-serif; }
+
 button {
   margin-top: 8px; padding: 9px 26px; font-size: 15px;
   border: none; border-radius: 25px; cursor: pointer;
@@ -195,6 +199,26 @@ button {
   box-shadow: 0 4px 14px rgba(0,0,0,.35);
 }
 button:hover { filter: brightness(1.12); }
+
+/* ---- Asosiy tugma (Boshlash / Yana o'ynash) — 3D, nafas oladigan CTA ---- */
+button.bosh-tugma {
+  margin-top: 16px; padding: 15px 48px; font-size: 20px;
+  font-weight: 800; letter-spacing: .3px;
+  border: none; border-radius: 32px; color: #fff;
+  background: linear-gradient(180deg, #ff6f6f 0%, #e5394f 100%);
+  box-shadow: 0 6px 0 #a81f30, 0 10px 20px rgba(0,0,0,.35);
+  transition: transform .08s ease, box-shadow .08s ease;
+  animation: nafasOlish 2.4s ease-in-out infinite;
+}
+button.bosh-tugma:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 #a81f30, 0 4px 10px rgba(0,0,0,.3);
+  animation-play-state: paused;
+}
+@keyframes nafasOlish {
+  0%, 100% { box-shadow: 0 6px 0 #a81f30, 0 10px 20px rgba(0,0,0,.35), 0 0 0 0 rgba(255,111,111,.45); }
+  50%      { box-shadow: 0 6px 0 #a81f30, 0 10px 20px rgba(0,0,0,.35), 0 0 0 14px rgba(255,111,111,0); }
+}
 
 /* ---- Liquid Glass tugmalar ---- */
 button.liquid {
@@ -217,7 +241,30 @@ button.liquid.rejim { background: linear-gradient(135deg, rgba(67,160,71,.55), r
 button.liquid.tanlangan {
   box-shadow: 0 0 0 2px #ffd54f, 0 0 16px rgba(255,213,79,.6), inset 0 1px 1px rgba(255,255,255,.6);
 }
-.rejimlar { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+/* Rejim tanlovi — gorizontal segmentli qator (planshet/katta ekranga ham sig'adi) */
+.rejim-qatori {
+  display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center;
+  gap: 8px; margin-top: 12px; width: 100%; max-width: 330px;
+}
+.rejim-qatori button.rejim {
+  flex: 1 1 90px; margin-top: 0; padding: 10px 6px;
+  font-size: 12.5px; white-space: nowrap;
+}
+
+/* Ikkilamchi amallar — kichik dumaloq ikonka-tugmalar (O'yin haqida, Bog'lanish) */
+.utility-qatori { display: flex; flex-direction: row; gap: 16px; margin-top: 18px; }
+button.ikonka-tugma {
+  margin-top: 0; width: 52px; height: 52px; padding: 0;
+  border-radius: 50%; font-size: 22px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.5);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.45), 0 4px 10px rgba(0,0,0,.25);
+  transition: transform .12s ease;
+}
+button.ikonka-tugma:active { transform: scale(.86); }
+button.ikonka-tugma:hover { transform: translateY(-1px) scale(1.05); }
 button.liquid::before {
   content: ""; position: absolute; top: -60%; left: -80%;
   width: 55%; height: 220%;
