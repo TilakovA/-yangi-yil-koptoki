@@ -8,7 +8,7 @@ Qor bo'ronlari va Rojdestvo bezaklari orasidan sayohat qiluvchi kichik koptok ha
 
 - **Boshqarish:** probel tugmasi yoki ekranni bosish — koptok sakraydi.
 - **Qoidalar:** har bir to'siqdan muvaffaqiyatli o'tish — 1 ball. Sovg'a qutisi 🎁 — +5 ball. Shirinlik 🍭 ni yeb olsang, 5 soniyaga to'siqlar sekinlashadi.
-- **Jonlar:** birinchi xato kechiriladi — koptok bir muddat mirillab, zarbadan keyin davom etadi.
+- **Jonlar:** Klassik va Qor bo'roni rejimida 3 ta, Tungi rejimda 4 ta jon beriladi — xato qilganingda koptok bir muddat mirillab, zarbadan keyin davom etadi.
 - **Rejalar:**
   - 🏙️ **Klassik** — oddiy tezlik, asta-sekin tun cho'kadi.
   - ❄️ **Qor bo'roni** — tezroq o'yin.
