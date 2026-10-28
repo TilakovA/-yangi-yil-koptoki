@@ -159,7 +159,13 @@ function skinOchiqmi(skin) {
 function skinQollash(id) {
   var skin = SKINLAR[0];
   for (var i = 0; i < SKINLAR.length; i++) if (SKINLAR[i].id === id) skin = SKINLAR[i];
-  koptok.style.background = "radial-gradient(circle at 30% 30%, " + skin.rang1 + ", " + skin.rang2 + ")";
+  if (id === "olmos") {
+    koptok.classList.add("skin-olmos");
+    koptok.style.background = "";
+  } else {
+    koptok.classList.remove("skin-olmos");
+    koptok.style.background = "radial-gradient(circle at 30% 30%, " + skin.rang1 + ", " + skin.rang2 + ")";
+  }
 }
 function skinTanlash(id) {
   var skin = null;
@@ -204,7 +210,10 @@ function premiumFaollashtir() {
   if (kiritilgan === PREMIUM_KOD) {
     premiumOchildi = true;
     try { localStorage.setItem("koptokPremium", "1"); } catch (e) {}
-    xabarEl.textContent = "✅ Premium faollashtirildi! Olmos skin ochildi.";
+    document.getElementById("premiumBelgisi").classList.remove("hidden");
+    skinTanlash("olmos");
+    moslash();
+    xabarEl.textContent = "✅ Premium faollashtirildi! Olmos skin ochildi, o'yin endi osonroq.";
     xabarEl.style.color = "#69f0ae";
     ovoz(990, 0.2, "sine");
   } else {
@@ -371,8 +380,11 @@ function panelYop() {
 // ---- Boshlash ----
 function boshlash() {
   var sozlama = REJIMLAR[rejim];
-  y = Math.round(VIRTUAL_H / 2) - 50; tezlik = 0; ball = 0; toqTezligi = sozlama.boshTezlik;
-  jonlar = sozlama.jonlar; invuln = 0; sekinVaqti = 0; sovgalarSoni = 0; kadrlar = 0;
+  moslash();
+  y = Math.round(VIRTUAL_H / 2) - 50; tezlik = 0; ball = 0;
+  toqTezligi = sozlama.boshTezlik * (premiumOchildi ? 0.85 : 1);
+  jonlar = sozlama.jonlar + (premiumOchildi ? 1 : 0);
+  invuln = 0; sekinVaqti = 0; sovgalarSoni = 0; kadrlar = 0;
   combo = 0; comboEngYuqori = 0;
   toqlar.forEach(function (t) { t.juftlik.remove(); });
   toqlar = [];
@@ -741,7 +753,7 @@ function moslash() {
     oyin.style.height = "600px";
     s = Math.min(devW / VIRTUAL_W, devH / VIRTUAL_H, 1.1);
   }
-  ORALIQ = Math.round(VIRTUAL_H * 0.27);
+  ORALIQ = Math.round(VIRTUAL_H * 0.27 * (premiumOchildi ? 1.12 : 1));
   YER_CHEGARASI = VIRTUAL_H - 36;
   BAL_MIN = Math.round(VIRTUAL_H * 0.12);
   BAL_MAX = Math.round(VIRTUAL_H - ORALIQ - VIRTUAL_H * 0.12);
@@ -754,5 +766,6 @@ window.addEventListener("orientationchange", function () { setTimeout(moslash, 2
 yulduzlarOsish();
 muteYangilash();
 skinQollash(joriySkin);
+if (premiumOchildi) document.getElementById("premiumBelgisi").classList.remove("hidden");
 moslash();
 menuKorsat();
