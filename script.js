@@ -74,6 +74,39 @@ try {
 } catch (e) {}
 function statsSaqlash() { try { localStorage.setItem("koptokStats", JSON.stringify(stats)); } catch (e) {} }
 
+// ---- Global statistika (Firebase) — faqat developer ko'radigan admin panel uchun ----
+var firebaseTayyor = false;
+var firestoreDb = null;
+try {
+  if (window.firebase && window.firebaseConfig) {
+    firebase.initializeApp(firebaseConfig);
+    firestoreDb = firebase.firestore();
+    firebaseTayyor = true;
+  }
+} catch (e) { firebaseTayyor = false; }
+
+function qurilmaId() {
+  var id = null;
+  try { id = localStorage.getItem("koptokQurilmaId"); } catch (e) {}
+  if (!id) {
+    id = "q_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem("koptokQurilmaId", id); } catch (e) {}
+  }
+  return id;
+}
+
+function statistikaYubor(natija) {
+  if (!firebaseTayyor) return;
+  try {
+    firestoreDb.collection("sessiyalar").add({
+      ball: natija,
+      rejim: rejim,
+      qurilma: qurilmaId(),
+      vaqt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {}
+}
+
 // ---- Kunlik seriya (streak) ----
 var streak = 0;
 try { streak = (JSON.parse(localStorage.getItem("koptokStreak") || "{}").count) || 0; } catch (e) {}
@@ -711,6 +744,7 @@ function yakunlash() {
       "<button class=\"liquid rejim\" onclick=\"menuQaytish()\">🏠 Bosh menyu</button>";
     tolqinlarniUlash();
     yutuqlarniTekshir({ ball: ball, rekord: rekord, stats: stats, comboEngYuqori: comboEngYuqori, streak: streak });
+    statistikaYubor(ball);
   }, 650);
 }
 

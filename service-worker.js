@@ -1,13 +1,15 @@
 // Keshning nomi — fayllarni o'zgartirganingdan keyin versiyani oshirsang,
 // eski kesh avtomatik tozalanadi va foydalanuvchi yangi fayllarni oladi.
-const KESH_NOMI = "koptoki-v12";
+const KESH_NOMI = "koptoki-v13";
 
 // Offline ishlashi uchun saqlanadigan fayllar
+// (admin.html/admin.js ataylab bu ro'yxatda yo'q — u doim tarmoqdan yangi yuklanadi)
 const KESHLANADIGAN_FAYLLAR = [
   "./",
   "./index.html",
   "./style.css",
   "./script.js",
+  "./firebase-config.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"

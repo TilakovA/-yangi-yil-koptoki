@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin — Yangi Yil Koptoki</title>
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; font-family: 'Baloo 2', Arial, sans-serif; color: #fff;
+    background: linear-gradient(160deg, #0b1d51 0%, #163a7a 50%, #0b1d51 100%);
+    padding: 20px;
+  }
+  .hidden { display: none !important; }
+
+  /* Kirish ekrani */
+  #girishEkrani { min-height: 90vh; display: flex; align-items: center; justify-content: center; }
+  .karta {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 18px; padding: 30px 26px; width: 100%; max-width: 320px; text-align: center;
+    backdrop-filter: blur(8px);
+  }
+  .karta h1 { font-size: 22px; margin: 0 0 18px; color: #ffd54f; }
+  .karta input {
+    width: 100%; padding: 12px 14px; margin-bottom: 12px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.1); color: #fff;
+    font-size: 15px; font-family: inherit;
+  }
+  .karta input::placeholder { color: rgba(255,255,255,.5); }
+  .karta button {
+    width: 100%; padding: 12px; border: none; border-radius: 10px; margin-top: 4px;
+    background: linear-gradient(145deg, #ff6b6b, #e53935); color: #fff; font-weight: 700;
+    font-size: 15px; font-family: inherit; cursor: pointer;
+  }
+  .xabar-matni { color: #ff8a80; font-size: 13px; min-height: 18px; margin-top: 10px; }
+
+  /* Boshqaruv ekrani */
+  .sarlavha { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .sarlavha h1 { font-size: 20px; margin: 0; color: #ffd54f; }
+  .chiqish-btn {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); color: #fff;
+    padding: 8px 16px; border-radius: 10px; font-family: inherit; font-weight: 700; cursor: pointer;
+  }
+  #yuklanish { text-align: center; opacity: .75; margin: 30px 0; }
+
+  .kartalar-qatori { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat-karta {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,213,79,.3);
+    border-radius: 14px; padding: 16px; text-align: center;
+  }
+  .stat-karta span { display: block; font-size: 26px; font-weight: 800; color: #ffd54f; }
+  .stat-karta small { font-size: 12px; opacity: .75; }
+
+  h2 { font-size: 16px; color: #ffd54f; margin: 22px 0 10px; }
+
+  .bar-qator { display: grid; grid-template-columns: 110px 1fr 90px; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
+  .bar-fon { background: rgba(255,255,255,.12); border-radius: 8px; height: 14px; overflow: hidden; }
+  .bar-toldirilgan { height: 100%; background: linear-gradient(90deg, #69f0ae, #00c853); border-radius: 8px; transition: width .4s ease; }
+
+  .kunlik-qatori { display: flex; align-items: flex-end; gap: 10px; height: 140px; padding: 10px 4px; overflow-x: auto; }
+  .kun-ustun { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 36px; height: 100%; }
+  .kun-bar { width: 22px; min-height: 2px; background: linear-gradient(180deg, #ffd54f, #e65100); border-radius: 6px 6px 0 0; }
+  .kun-ustun small { font-size: 10px; opacity: .6; margin-top: 4px; }
+  .kun-ustun b { font-size: 11px; color: #ffd54f; }
+
+  .max-genglik { max-width: 640px; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<div id="girishEkrani" class="ekran">
+  <div class="karta">
+    <h1>🔐 Admin kirish</h1>
+    <form id="girishForma">
+      <input id="emailMaydon" type="email" placeholder="Email" autocomplete="username" required>
+      <input id="parolMaydon" type="password" placeholder="Parol" autocomplete="current-password" required>
+      <button type="submit">Kirish</button>
+    </form>
+    <p id="girishXabar" class="xabar-matni"></p>
+  </div>
+</div>
+
+<div id="boshqaruvEkrani" class="ekran hidden max-genglik">
+  <div class="sarlavha">
+    <h1>📊 Yangi Yil Koptoki — Statistika</h1>
+    <button id="chiqishBtn" class="chiqish-btn">Chiqish</button>
+  </div>
+  <p id="yuklanish">Yuklanmoqda...</p>
+
+  <div class="kartalar-qatori">
+    <div class="stat-karta"><span id="statJamiOyinlar">0</span><small>Jami o'yinlar</small></div>
+    <div class="stat-karta"><span id="statQurilmalar">0</span><small>Noyob qurilmalar</small></div>
+    <div class="stat-karta"><span id="statOrtachaBall">0</span><small>O'rtacha ball</small></div>
+    <div class="stat-karta"><span id="statMaxBall">0</span><small>Eng yuqori ball</small></div>
+  </div>
+
+  <h2>Rejimlar bo'yicha</h2>
+  <div id="rejimlarGrafigi"></div>
+
+  <h2>Oxirgi kunlardagi faollik</h2>
+  <div id="kunlikGrafigi" class="kunlik-qatori"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
