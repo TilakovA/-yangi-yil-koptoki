@@ -34,6 +34,7 @@ var BAL_MIN = 70, BAL_MAX = 370;
 var y = 250, tezlik = 0, toqlar = [], konfetlar = [];
 var ball = 0, oynayapti = false, toqTezligi = 3;
 var jonlar = 2, invuln = 0, sekinVaqti = 0, sovgalarSoni = 0, kadrlar = 0;
+var combo = 0, comboEngYuqori = 0;
 var gravitatsiya = 0.42, sakrashKuchi = -7.6;
 var SHARCHA_RANGLARI = ["#e53935", "#43a047", "#ffd54f", "#42a5f5", "#ab47bc", "#ffffff"];
 
@@ -49,6 +50,11 @@ function sanaBugun() {
   var d = new Date();
   return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 }
+function kechagiSana() {
+  var d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
 function tarixQosh(natija) {
   var tarix = [];
   try { tarix = JSON.parse(localStorage.getItem("koptokTarix") || "[]"); } catch (e) { tarix = []; }
@@ -56,6 +62,156 @@ function tarixQosh(natija) {
   if (tarix.length > 50) tarix = tarix.slice(-50);
   try { localStorage.setItem("koptokTarix", JSON.stringify(tarix)); } catch (e) {}
   return tarix;
+}
+
+// ---- Statistika (yutuqlar va kunlik seriya uchun) ----
+var stats = { jamiOyinlar: 0, jamiSovgalar: 0, rejimlar: [] };
+try {
+  var saqlangan = JSON.parse(localStorage.getItem("koptokStats") || "{}");
+  if (saqlangan.jamiOyinlar) stats.jamiOyinlar = saqlangan.jamiOyinlar;
+  if (saqlangan.jamiSovgalar) stats.jamiSovgalar = saqlangan.jamiSovgalar;
+  if (saqlangan.rejimlar) stats.rejimlar = saqlangan.rejimlar;
+} catch (e) {}
+function statsSaqlash() { try { localStorage.setItem("koptokStats", JSON.stringify(stats)); } catch (e) {} }
+
+// ---- Kunlik seriya (streak) ----
+var streak = 0;
+try { streak = (JSON.parse(localStorage.getItem("koptokStreak") || "{}").count) || 0; } catch (e) {}
+function streakYangilash() {
+  var bugun = sanaBugun();
+  var eski = { count: 0, last: "" };
+  try { eski = JSON.parse(localStorage.getItem("koptokStreak") || "{}"); } catch (e) {}
+  if (eski.last === bugun) { streak = eski.count || 1; return; }
+  streak = (eski.last === kechagiSana()) ? (eski.count || 0) + 1 : 1;
+  try { localStorage.setItem("koptokStreak", JSON.stringify({ count: streak, last: bugun })); } catch (e) {}
+}
+
+// ---- Yutuqlar (achievements) ----
+var ACHIEVEMENTS = [
+  { id: "birinchi", ikon: "🎮", nom: "Birinchi qadam", tavsif: "Birinchi marta o'ynang", shart: function (ctx) { return ctx.stats.jamiOyinlar >= 1; } },
+  { id: "ball10",   ikon: "⭐", nom: "Yulduzcha",      tavsif: "Bir o'yinda 10 ball to'plang", shart: function (ctx) { return ctx.ball >= 10; } },
+  { id: "ball25",   ikon: "🌟", nom: "Yorqin natija",  tavsif: "Bir o'yinda 25 ball to'plang", shart: function (ctx) { return ctx.ball >= 25; } },
+  { id: "ball50",   ikon: "💫", nom: "Usta",           tavsif: "Bir o'yinda 50 ball to'plang", shart: function (ctx) { return ctx.ball >= 50; } },
+  { id: "ball100",  ikon: "👑", nom: "Afsona",         tavsif: "Bir o'yinda 100 ball to'plang", shart: function (ctx) { return ctx.ball >= 100; } },
+  { id: "rejimchi", ikon: "🗺️", nom: "Sayohatchi",     tavsif: "Barcha 3 rejimda o'ynang", shart: function (ctx) { return ctx.stats.rejimlar.length >= 3; } },
+  { id: "sovgachi", ikon: "🎁", nom: "Sovg'a ustasi",  tavsif: "Jami 20 ta sovg'a qutisi yig'ing", shart: function (ctx) { return ctx.stats.jamiSovgalar >= 20; } },
+  { id: "kombochi", ikon: "🔥", nom: "Olov seriya",    tavsif: "Bir o'yinda 10 ta ketma-ket to'siqdan o'ting", shart: function (ctx) { return ctx.comboEngYuqori >= 10; } },
+  { id: "sodiq",    ikon: "📅", nom: "Sodiq o'yinchi", tavsif: "3 kun ketma-ket o'ynang", shart: function (ctx) { return ctx.streak >= 3; } }
+];
+var yutuqlarOchilgan = [];
+try { yutuqlarOchilgan = JSON.parse(localStorage.getItem("koptokYutuqlar") || "[]"); } catch (e) { yutuqlarOchilgan = []; }
+
+function yutuqToastKorsat(a) {
+  var el = document.createElement("div");
+  el.className = "yutuq-toast";
+  el.innerHTML = "<span>" + a.ikon + "</span><div><b>YUTUQ OCHILDI</b><br>" + a.nom + "</div>";
+  oyin.appendChild(el);
+  ovoz(784, 0.12, "sine");
+  setTimeout(function () { ovoz(1047, 0.18, "sine"); }, 120);
+  setTimeout(function () {
+    el.classList.add("yutuq-toast-ketish");
+    setTimeout(function () { el.remove(); }, 400);
+  }, 2600);
+}
+function yutuqlarniTekshir(ctx) {
+  var ozgardi = false;
+  ACHIEVEMENTS.forEach(function (a) {
+    if (yutuqlarOchilgan.indexOf(a.id) === -1 && a.shart(ctx)) {
+      yutuqlarOchilgan.push(a.id);
+      yutuqToastKorsat(a);
+      ozgardi = true;
+    }
+  });
+  if (ozgardi) { try { localStorage.setItem("koptokYutuqlar", JSON.stringify(yutuqlarOchilgan)); } catch (e) {} }
+}
+function yutuqlarRender() {
+  var html = "";
+  ACHIEVEMENTS.forEach(function (a) {
+    var ochiq = yutuqlarOchilgan.indexOf(a.id) !== -1;
+    html += "<div class=\"yutuq-band" + (ochiq ? "" : " qulf") + "\">" +
+      "<span class=\"yutuq-ikon\">" + (ochiq ? a.ikon : "🔒") + "</span>" +
+      "<div class=\"yutuq-matn\"><b>" + a.nom + "</b><br><small>" + a.tavsif + "</small></div>" +
+      "</div>";
+  });
+  document.getElementById("yutuqlarRoyxati").innerHTML = html;
+}
+
+// ---- Koptok skinlari ----
+var SKINLAR = [
+  { id: "oltin",  nom: "Oltin",    rang1: "#ffd54f", rang2: "#e65100" },
+  { id: "zumrad", nom: "Zumrad",   rang1: "#69f0ae", rang2: "#00695c", shart: function (ctx) { return ctx.rekord >= 15; } },
+  { id: "yoqut",  nom: "Yoqut",    rang1: "#ff8a80", rang2: "#b71c1c", shart: function (ctx) { return ctx.rekord >= 30; } },
+  { id: "feruza", nom: "Feruza",   rang1: "#84ffff", rang2: "#006064", shart: function (ctx) { return ctx.rekord >= 50; } },
+  { id: "kumush", nom: "Kumush",   rang1: "#eceff1", rang2: "#455a64", shart: function (ctx) { return ctx.yutuqlar.indexOf("rejimchi") !== -1; } },
+  { id: "olmos",  nom: "Olmos 👑", rang1: "#e1f5fe", rang2: "#0277bd", premium: true }
+];
+var premiumOchildi = false;
+try { premiumOchildi = localStorage.getItem("koptokPremium") === "1"; } catch (e) {}
+var joriySkin = "oltin";
+try { joriySkin = localStorage.getItem("koptokSkin") || "oltin"; } catch (e) {}
+
+function skinOchiqmi(skin) {
+  if (skin.id === "oltin") return true;
+  if (skin.premium) return premiumOchildi;
+  if (skin.shart) return skin.shart({ rekord: rekord, yutuqlar: yutuqlarOchilgan });
+  return false;
+}
+function skinQollash(id) {
+  var skin = SKINLAR[0];
+  for (var i = 0; i < SKINLAR.length; i++) if (SKINLAR[i].id === id) skin = SKINLAR[i];
+  koptok.style.background = "radial-gradient(circle at 30% 30%, " + skin.rang1 + ", " + skin.rang2 + ")";
+}
+function skinTanlash(id) {
+  var skin = null;
+  for (var i = 0; i < SKINLAR.length; i++) if (SKINLAR[i].id === id) skin = SKINLAR[i];
+  if (!skin || !skinOchiqmi(skin)) return;
+  joriySkin = id;
+  try { localStorage.setItem("koptokSkin", id); } catch (e) {}
+  skinQollash(id);
+  skinlarRender();
+  ovoz(700, 0.08, "triangle");
+}
+function skinlarRender() {
+  var html = "";
+  SKINLAR.forEach(function (s) {
+    var ochiq = skinOchiqmi(s);
+    var faol = joriySkin === s.id;
+    html += "<button class=\"skin-dona" + (faol ? " tanlangan" : "") + (ochiq ? "" : " qulf") + "\"" +
+      (ochiq ? " onclick=\"skinTanlash('" + s.id + "')\"" : "") + ">" +
+      "<span class=\"skin-shar\" style=\"background:radial-gradient(circle at 30% 30%," + s.rang1 + "," + s.rang2 + ")\"></span>" +
+      "<small>" + (ochiq ? s.nom : "🔒") + "</small>" +
+      "</button>";
+  });
+  document.getElementById("skinlarRoyxati").innerHTML = html;
+}
+
+// ---- Premium (yashirin bo'lim) ----
+var PREMIUM_KOD = "YANGIYIL2027";
+var logoBosishSoni = 0, logoBosishTaymer = null;
+function logoBosildi() {
+  logoBosishSoni++;
+  clearTimeout(logoBosishTaymer);
+  logoBosishTaymer = setTimeout(function () { logoBosishSoni = 0; }, 1500);
+  if (logoBosishSoni >= 5) {
+    logoBosishSoni = 0;
+    panelKorsat("premiumPanel");
+  }
+}
+function premiumFaollashtir() {
+  var kodEl = document.getElementById("premiumKod");
+  var xabarEl = document.getElementById("premiumXabar");
+  var kiritilgan = (kodEl.value || "").trim().toUpperCase();
+  if (kiritilgan === PREMIUM_KOD) {
+    premiumOchildi = true;
+    try { localStorage.setItem("koptokPremium", "1"); } catch (e) {}
+    xabarEl.textContent = "✅ Premium faollashtirildi! Olmos skin ochildi.";
+    xabarEl.style.color = "#69f0ae";
+    ovoz(990, 0.2, "sine");
+  } else {
+    xabarEl.textContent = "❌ Kod noto'g'ri.";
+    xabarEl.style.color = "#ff8a80";
+    zarbaOvozi();
+  }
 }
 
 // ---- Ovoz ----
@@ -147,15 +303,21 @@ function rejimTugmasi(r) {
 function kontaktTugmalari() {
   var infoSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"></circle><line x1=\"12\" y1=\"11\" x2=\"12\" y2=\"16.5\"></line><circle cx=\"12\" cy=\"7.6\" r=\"1.15\" fill=\"currentColor\" stroke=\"none\"></circle></svg>";
   var mailSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"5.5\" width=\"18\" height=\"13\" rx=\"2.2\"></rect><path d=\"M4 7l8 6 8-6\"></path></svg>";
+  var trophySvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 4h8v4a4 4 0 0 1-8 0V4z\"></path><path d=\"M8 5H5a3 3 0 0 0 3 3\"></path><path d=\"M16 5h3a3 3 0 0 1-3 3\"></path><path d=\"M12 12v3.5\"></path><path d=\"M9 20h6\"></path><path d=\"M10 15.5h4v1.8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-1.8z\"></path></svg>";
+  var paletteSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 21a9 9 0 0 1 0-18 7 7 0 0 1 7 7c0 2.2-1.8 3.5-3.7 3.5h-1.1a1.7 1.7 0 0 0 0 3.4H15a1.3 1.3 0 0 1 0 2.6 9 9 0 0 1-3 1.5z\"></path><circle cx=\"7.5\" cy=\"10.5\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"></circle><circle cx=\"10.5\" cy=\"7\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"></circle><circle cx=\"15\" cy=\"7.5\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"></circle></svg>";
   return "<div class=\"utility-qatori\">" +
-    "<button class=\"ikonka-tugma\" title=\"O\u2019yin haqida\" onclick=\"panelKorsat('haqidaPanel')\">" + infoSvg + "</button>" +
-    "<button class=\"ikonka-tugma\" title=\"Bog\u2019lanish\" onclick=\"panelKorsat('kontaktPanel')\">" + mailSvg + "</button>" +
+    "<button class=\"ikonka-tugma\" title=\"O\u2019yin haqida\" onclick=\"panelKorsat(\'haqidaPanel\')\">" + infoSvg + "</button>" +
+    "<button class=\"ikonka-tugma\" title=\"Yutuqlar\" onclick=\"panelKorsat(\'yutuqlarPanel\')\">" + trophySvg + "</button>" +
+    "<button class=\"ikonka-tugma\" title=\"Skinlar\" onclick=\"panelKorsat(\'skinlarPanel\')\">" + paletteSvg + "</button>" +
+    "<button class=\"ikonka-tugma\" title=\"Bog\u2019lanish\" onclick=\"panelKorsat(\'kontaktPanel\')\">" + mailSvg + "</button>" +
     "</div>";
 }
 function menuHtml() {
-  return "<h1>Yangi Yil Koptoki 🎄</h1>" +
+  var streakHtml = streak >= 1 ? "<p class=\"streak-badge\">\uD83D\uDD25 " + streak + " kunlik seriya</p>" : "";
+  return "<h1 onclick=\"logoBosildi()\">Yangi Yil Koptoki 🎄</h1>" +
     "<p>Probel bosing yoki ekranni bosib sakrating</p>" +
     "<p>Konfet tayoqchalarga tegmang, sovg'alar yig'ing!</p>" +
+    streakHtml +
     "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Boshlash</button>" +
     "<div class=\"rejim-qatori\">" +
       rejimTugmasi("klassik") + rejimTugmasi("boron") + rejimTugmasi("tungi") +
@@ -180,20 +342,29 @@ function menuKorsat() {
   rejimlarniUlash();
   tolqinlarniUlash();
 }
+var BARCHA_PANELLAR = ["haqidaPanel", "kontaktPanel", "yutuqlarPanel", "skinlarPanel", "premiumPanel"];
 function menuQaytish() {
-  haqidaPanel.classList.add("hidden");
-  kontaktPanel.classList.add("hidden");
+  BARCHA_PANELLAR.forEach(function (pid) {
+    var el = document.getElementById(pid);
+    if (el) el.classList.add("hidden");
+  });
   menuKorsat();
 }
 function panelKorsat(id) {
   if (oynayapti) return;
-  if (id === "haqidaPanel") haqidaPanel.classList.remove("hidden");
-  if (id === "kontaktPanel") kontaktPanel.classList.remove("hidden");
+  BARCHA_PANELLAR.forEach(function (pid) {
+    var el = document.getElementById(pid);
+    if (el) el.classList.toggle("hidden", pid !== id);
+  });
   xabar.classList.add("hidden");
+  if (id === "yutuqlarPanel") yutuqlarRender();
+  if (id === "skinlarPanel") skinlarRender();
 }
 function panelYop() {
-  haqidaPanel.classList.add("hidden");
-  kontaktPanel.classList.add("hidden");
+  BARCHA_PANELLAR.forEach(function (pid) {
+    var el = document.getElementById(pid);
+    if (el) el.classList.add("hidden");
+  });
   if (!oynayapti) xabar.classList.remove("hidden");
 }
 
@@ -202,11 +373,16 @@ function boshlash() {
   var sozlama = REJIMLAR[rejim];
   y = Math.round(VIRTUAL_H / 2) - 50; tezlik = 0; ball = 0; toqTezligi = sozlama.boshTezlik;
   jonlar = sozlama.jonlar; invuln = 0; sekinVaqti = 0; sovgalarSoni = 0; kadrlar = 0;
+  combo = 0; comboEngYuqori = 0;
   toqlar.forEach(function (t) { t.juftlik.remove(); });
   toqlar = [];
   konfetlar.forEach(function (k) { k.el.remove(); });
   konfetlar = [];
   oynayapti = true;
+  stats.jamiOyinlar++;
+  if (stats.rejimlar.indexOf(rejim) === -1) stats.rejimlar.push(rejim);
+  statsSaqlash();
+  streakYangilash();
   panelYop();
   xabar.classList.add("hidden");
   ballDiv.textContent = "0";
@@ -304,6 +480,7 @@ function oshishYozuvi(x, y2, matn) {
 function tegish() {
   if (invuln > 0) return;
   jonlar--;
+  combo = 0;
   jonlarYangilash();
   if (jonlar <= 0) { yakunlash(); }
   else {
@@ -366,6 +543,15 @@ function sikl() {
         ballOvozi();
         oshishYozuvi(85, y - 10, "+1");
 
+        combo++;
+        if (combo > comboEngYuqori) comboEngYuqori = combo;
+        if (combo % 5 === 0) {
+          ball += 2;
+          ballDiv.textContent = ball;
+          oshishYozuvi(85, y - 34, "🔥 Combo x" + combo + " +2");
+          sovgaOvozi();
+        }
+
         if (ball % 5 === 0) {
           toqTezligi += sozlama.oshish;
           darajaDiv.textContent = "Daraja: " + (Math.floor(ball / 5) + 1);
@@ -404,6 +590,8 @@ function sikl() {
           t.sovga = null;
           ball += 5;
           ballDiv.textContent = ball;
+          stats.jamiSovgalar++;
+          statsSaqlash();
           sovgaOvozi();
           oshishYozuvi(85, y - 30, "+5");
           if (rejim === "klassik") {
@@ -450,6 +638,7 @@ function sikl() {
 
     // Yer va osmon
     if (y > YER_CHEGARASI || y < 0) {
+      combo = 0;
       if (jonlar <= 1) { jonlar = 0; jonlarYangilash(); yakunlash(); }
       else { jonlar = 1; jonlarYangilash(); invuln = 100; koptok.classList.add("mir"); zarbaOvozi(); y = YER_CHEGARASI - 64; tezlik = 0; }
     }
@@ -509,6 +698,7 @@ function yakunlash() {
       "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Yana o\u2019ynash</button>" +
       "<button class=\"liquid rejim\" onclick=\"menuQaytish()\">🏠 Bosh menyu</button>";
     tolqinlarniUlash();
+    yutuqlarniTekshir({ ball: ball, rekord: rekord, stats: stats, comboEngYuqori: comboEngYuqori, streak: streak });
   }, 650);
 }
 
@@ -563,5 +753,6 @@ window.addEventListener("orientationchange", function () { setTimeout(moslash, 2
 // ---- Ishga tushirish ----
 yulduzlarOsish();
 muteYangilash();
+skinQollash(joriySkin);
 moslash();
 menuKorsat();

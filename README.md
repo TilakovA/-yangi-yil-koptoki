@@ -14,6 +14,10 @@ Qor bo'ronlari va Rojdestvo bezaklari orasidan sayohat qiluvchi kichik koptok ha
   - ❄️ **Qor bo'roni** — tezroq o'yin.
   - 🌙 **Tungi rejim** — koptok atrofida yorug'lik doirasi (fonar effekti).
 - **Daraja:** har 5 balldan keyin daraja oshadi va to'siqlar tezlashadi; 4-darajadan boshlab to'siqlar tebranib harakat qiladi.
+- **Combo:** ketma-ket 5 ta to'siqdan urilmay o'tsang, 🔥 combo bonusi sifatida +2 ball olasan.
+- **Yutuqlar:** 🏆 tugmasidan turli maqsadlarni (ball, sovg'alar, combo, kunlik seriya va h.k.) ko'rib, bajarib boring.
+- **Koptok ko'rinishlari:** 🎨 tugmasidan rekord va yutuqlar orqali ochiladigan yangi ranglarni tanlang.
+- **Kunlik seriya:** har kuni o'ynab, ketma-ket kunlar sonini (🔥 streak) oshirib boring.
 
 ## Texnologiyalar
 

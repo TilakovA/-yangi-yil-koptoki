@@ -40,10 +40,11 @@
       <h2>O'yin haqida</h2>
       <p><b>Yangi Yil Koptoki</b> — koptokni konfet tayoqchalari orasidan o'tkazing!</p>
       <p><b>Boshqarish:</b> probel yoki ekranni bosish.</p>
-      <p><b>Qoidalar:</b> har bir to'pdan o'tish — 1 ball. Sovg'a qutisi 🎁 — +5 ball. Shirinlik 🍭 — 5 soniyaga to'plar sekinlashadi.</p>
+      <p><b>Qoidalar:</b> har bir to'pdan o'tish — 1 ball. Sovg'a qutisi 🎁 — +5 ball. Shirinlik 🍭 — 5 soniyaga to'plar sekinlashadi. Ketma-ket 5 ta to'pdan urilmay o'tsang — 🔥 Combo bonus +2 ball!</p>
       <p><b>Rejalar:</b> 🏙️ Klassik — oddiy; ❄️ Qor bo'roni — tezroq; 🌙 Tungi — koptok atrofida yorug'lik doirasi.</p>
       <p><b>Jonlar:</b> Klassik va Qor bo'roni rejimida 3 ta, Tungi rejimda 4 ta jon beriladi — xato qilganingda koptok bir muddat mirillab, davom etadi. 4-darajadan to'plar tebranib yuradi!</p>
-      <p class="versiya">Versiya: 1.4 &bull; 2026</p>
+      <p><b>Yutuqlar va skinlar:</b> 🏆 tugmasidan yutuqlaringizni, 🎨 tugmasidan koptok ko'rinishlarini ko'rib, ochib boring. Har kuni o'ynab 🔥 seriyangizni uzmang!</p>
+      <p class="versiya">Versiya: 1.5 &bull; 2026</p>
       <button class="yopish" onclick="panelYop()">Orqaga</button>
     </div>
 
@@ -54,6 +55,33 @@
       <div class="kontakt">📧 Email: <a href="mailto:space.nebulix@gmail.com">space.nebulix@gmail.com</a></div>
       <div class="kontakt">💬 Telegram: <a href="https://t.me/TmAlonee_01" target="_blank">@TmAlonee_01</a></div>
       <div class="kontakt">🌐 GitHub: <a href="https://github.com/TilakovA" target="_blank">github.com/TilakovA</a></div>
+      <button class="yopish" onclick="panelYop()">Orqaga</button>
+    </div>
+
+    <!-- Yutuqlar paneli -->
+    <div id="yutuqlarPanel" class="panel hidden">
+      <h2>🏆 Yutuqlar</h2>
+      <div id="yutuqlarRoyxati" class="yutuqlar-royxati"></div>
+      <button class="yopish" onclick="panelYop()">Orqaga</button>
+    </div>
+
+    <!-- Skinlar paneli -->
+    <div id="skinlarPanel" class="panel hidden">
+      <h2>🎨 Koptok ko'rinishlari</h2>
+      <p>Rekordni oshirib yoki yutuqlarni ochib, yangi ko'rinishlarni qo'lga kiriting.</p>
+      <div id="skinlarRoyxati" class="skinlar-royxati"></div>
+      <button class="yopish" onclick="panelYop()">Orqaga</button>
+    </div>
+
+    <!-- Premium (yashirin) paneli -->
+    <div id="premiumPanel" class="panel hidden">
+      <h2>✨ Premium</h2>
+      <p>Maxsus <b>Olmos</b> koptok ko'rinishini va kelajakdagi premium imkoniyatlarni ochish uchun Telegram orqali developer bilan bog'laning:</p>
+      <div class="kontakt">💬 Telegram: <a href="https://t.me/TmAlonee_01" target="_blank">@TmAlonee_01</a></div>
+      <p>Faollashtirish kodingiz bo'lsa, shu yerga kiriting:</p>
+      <input id="premiumKod" type="text" class="premium-input" placeholder="Kodni kiriting">
+      <button class="bosh-tugma" onclick="premiumFaollashtir()">Faollashtirish</button>
+      <div id="premiumXabar" class="premium-xabar"></div>
       <button class="yopish" onclick="panelYop()">Orqaga</button>
     </div>
   </div>
