@@ -310,7 +310,8 @@ function qorTushir() {
   var olcham = Math.random() * 5 + 3;
   qor.style.width = olcham + "px";
   qor.style.height = olcham + "px";
-  qor.style.left = Math.random() * 400 + "px";
+  qor.style.left = Math.random() * VIRTUAL_W + "px";
+  qor.style.setProperty("--qor-masofa", (VIRTUAL_H + 40) + "px");
   qor.style.animationDuration = (Math.random() * 4 + 5) + "s";
   oyin.appendChild(qor);
   setTimeout(function () { qor.remove(); }, 9500);

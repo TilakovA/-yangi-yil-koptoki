@@ -66,7 +66,7 @@ body {
   background: #fff; opacity: .85; pointer-events: none; z-index: 9;
   animation: qorTushish linear forwards;
 }
-@keyframes qorTushish { to { transform: translateY(630px); } }
+@keyframes qorTushish { to { transform: translateY(var(--qor-masofa, 630px)); } }
 
 /* To'qlar juftligi: ichida ikkala ustun, tegish tekshiruvi shu struktura bo'yicha */
 .toqlarJuftligi {
