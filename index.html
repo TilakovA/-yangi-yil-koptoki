@@ -33,6 +33,7 @@
     <div id="jonlar">❤️❤️</div>
     <div id="bonus"></div>
     <div id="muteBtn">🔊</div>
+    <div id="pauzaTugma" class="hidden" title="Pauza">⏸️</div>
     <div id="rekord">Rekord: 0</div>
     <div id="premiumBelgisi" class="hidden" title="Premium faol">👑</div>
 
@@ -87,6 +88,14 @@
       <button class="bosh-tugma" onclick="premiumFaollashtir()">Faollashtirish</button>
       <div id="premiumXabar" class="premium-xabar"></div>
       <button class="yopish" onclick="panelYop()">Orqaga</button>
+    </div>
+
+    <!-- Pauza paneli -->
+    <div id="pauzaPanel" class="panel hidden">
+      <h2>⏸️ Pauza</h2>
+      <button class="bosh-tugma" onclick="pauzaYop()">▶️ Davom ettirish</button>
+      <button class="liquid rejim" onclick="qaytaBoshlash()">🔄 Qaytadan boshlash</button>
+      <button class="liquid rejim" onclick="pauzadanMenyuga()">🏠 Bosh menyu</button>
     </div>
   </div>
 </div>

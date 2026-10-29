@@ -6,6 +6,8 @@ var darajaDiv = document.getElementById("daraja");
 var jonlarDiv = document.getElementById("jonlar");
 var bonusDiv = document.getElementById("bonus");
 var muteBtn = document.getElementById("muteBtn");
+var pauzaTugma = document.getElementById("pauzaTugma");
+var pauzaPanel = document.getElementById("pauzaPanel");
 var tunDiv = document.getElementById("tun");
 var fonQoplama = document.getElementById("fonQoplama");
 var xabar = document.getElementById("xabar");
@@ -35,6 +37,7 @@ var y = 250, tezlik = 0, toqlar = [], konfetlar = [];
 var ball = 0, oynayapti = false, toqTezligi = 3;
 var jonlar = 2, invuln = 0, sekinVaqti = 0, sovgalarSoni = 0, kadrlar = 0;
 var combo = 0, comboEngYuqori = 0;
+var pauzada = false;
 var gravitatsiya = 0.42, sakrashKuchi = -7.6;
 var SHARCHA_RANGLARI = ["#e53935", "#43a047", "#ffd54f", "#42a5f5", "#ab47bc", "#ffffff"];
 
@@ -336,6 +339,11 @@ function tolqinlarniUlash() {
     btn.addEventListener("click", function (e) { tolqinYarat(btn, e); });
   });
 }
+function elementTolqinlarUlash(root) {
+  root.querySelectorAll("button.liquid").forEach(function (btn) {
+    btn.addEventListener("click", function (e) { tolqinYarat(btn, e); });
+  });
+}
 
 // ---- Menyu ----
 function rejimTugmasi(r) {
@@ -384,6 +392,7 @@ function menuKorsat() {
   xabar.innerHTML = menuHtml();
   rejimlarniUlash();
   tolqinlarniUlash();
+  pauzaTugma.classList.add("hidden");
 }
 var BARCHA_PANELLAR = ["haqidaPanel", "kontaktPanel", "yutuqlarPanel", "skinlarPanel", "premiumPanel"];
 function menuQaytish() {
@@ -411,6 +420,32 @@ function panelYop() {
   if (!oynayapti) xabar.classList.remove("hidden");
 }
 
+// ---- Pauza ----
+function pauzaOch() {
+  if (!oynayapti || pauzada) return;
+  pauzada = true;
+  pauzaPanel.classList.remove("hidden");
+  ovoz(500, 0.08, "triangle");
+}
+function pauzaYop() {
+  pauzada = false;
+  pauzaPanel.classList.add("hidden");
+  ovoz(700, 0.08, "triangle");
+}
+function qaytaBoshlash() {
+  pauzaPanel.classList.add("hidden");
+  pauzada = false;
+  boshlash();
+}
+function pauzadanMenyuga() {
+  pauzaPanel.classList.add("hidden");
+  pauzada = false;
+  oynayapti = false;
+  menuKorsat();
+}
+pauzaTugma.addEventListener("click", function (e) { e.stopPropagation(); pauzaOch(); });
+pauzaTugma.addEventListener("touchstart", function (e) { e.stopPropagation(); });
+
 // ---- Boshlash ----
 function boshlash() {
   var sozlama = REJIMLAR[rejim];
@@ -420,6 +455,7 @@ function boshlash() {
   jonlar = sozlama.jonlar + (premiumOchildi ? 1 : 0);
   invuln = 0; sekinVaqti = 0; sovgalarSoni = 0; kadrlar = 0;
   combo = 0; comboEngYuqori = 0;
+  pauzada = false;
   toqlar.forEach(function (t) { t.juftlik.remove(); });
   toqlar = [];
   konfetlar.forEach(function (k) { k.el.remove(); });
@@ -431,6 +467,7 @@ function boshlash() {
   streakYangilash();
   panelYop();
   xabar.classList.add("hidden");
+  pauzaTugma.classList.remove("hidden");
   ballDiv.textContent = "0";
   darajaDiv.textContent = "Daraja: 1";
   jonlarYangilash();
@@ -455,7 +492,7 @@ function jonlarYangilash() {
 }
 
 function sakrash() {
-  if (oynayapti) {
+  if (oynayapti && !pauzada) {
     tezlik = sakrashKuchi;
     sakrashOvozi();
   }
@@ -559,7 +596,7 @@ function portlash() {
 
 // ---- Asosiy sikl ----
 function sikl() {
-  if (oynayapti) {
+  if (oynayapti && !pauzada) {
     kadrlar++;
     tezlik += gravitatsiya;
     y += tezlik;
@@ -713,6 +750,7 @@ function sikl() {
 function yakunlash() {
   if (!oynayapti) return;
   oynayapti = false;
+  pauzaTugma.classList.add("hidden");
   yiqilishOvozi();
   portlash();
 
@@ -802,5 +840,6 @@ yulduzlarOsish();
 muteYangilash();
 skinQollash(joriySkin);
 if (premiumOchildi) document.getElementById("premiumBelgisi").classList.remove("hidden");
+elementTolqinlarUlash(pauzaPanel);
 moslash();
 menuKorsat();
