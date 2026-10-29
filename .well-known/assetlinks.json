@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.tilakova.twa",
+      "sha256_cert_fingerprints": [
+        "42:4D:AF:88:58:35:54:F7:CD:B9:C9:77:9A:F6:FE:BB:F1:DB:D4:63:27:05:46:75:AB:E7:F4:F8:AC:2F:12:F5"
+      ]
+    }
+  }
+]
