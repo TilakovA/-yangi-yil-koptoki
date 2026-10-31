@@ -68,6 +68,45 @@ body {
 }
 @keyframes qorTushish { to { transform: translateY(var(--qor-masofa, 630px)); } }
 
+/* Qor o'rniga tushadigan yarasalar (faqat Halloween rejimida) */
+.yarasa {
+  position: absolute; top: -20px; pointer-events: none; z-index: 9;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,.55));
+  animation: yarasaUchish linear forwards;
+}
+@keyframes yarasaUchish {
+  0%   { transform: translateY(0) translateX(0) rotate(-10deg); }
+  50%  { transform: translateY(calc(var(--qor-masofa, 630px) * .5)) translateX(14px) rotate(10deg); }
+  100% { transform: translateY(var(--qor-masofa, 630px)) translateX(-10px) rotate(-10deg); }
+}
+
+/* Halloween fon temasi — to'q binafsha/qora osmon */
+#oyin.tema-halloween {
+  background: linear-gradient(to bottom, #0d0221 0%, #2b0a3d 55%, #180a2e 100%);
+}
+#oyin.tema-halloween .toq {
+  background:
+    linear-gradient(rgba(0,0,0,.18), rgba(0,0,0,.38)),
+    repeating-linear-gradient(45deg, #ff8f00 0 14px, #161616 14px 28px);
+  border-left: 3px solid #4a148c;
+  border-right: 3px solid #4a148c;
+  box-shadow: 0 0 14px rgba(255,143,0,.4);
+}
+#oyin.tema-halloween .past::after,
+#oyin.tema-halloween .yuqori::before {
+  background: #ff8f00;
+}
+
+/* Harakatlanuvchi xavf (👻 / 🧊) — to'siqlar ichida tebranadigan qo'shimcha xavf */
+.xavf {
+  position: absolute; left: 14px; width: 28px; height: 28px;
+  font-size: 23px; line-height: 28px; text-align: center;
+  z-index: 4; pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.5));
+  animation: xavfPulsatsiya 1.3s ease-in-out infinite;
+}
+@keyframes xavfPulsatsiya { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
 /* To'qlar juftligi: ichida ikkala ustun, tegish tekshiruvi shu struktura bo'yicha */
 .toqlarJuftligi {
   position: absolute; top: 0; width: 60px; height: 600px;

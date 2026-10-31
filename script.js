@@ -19,9 +19,10 @@ var kontaktPanel = document.getElementById("kontaktPanel");
 // Osonroq o'ynalishi uchun: tezlik pasaytirildi, qiyinlashish sekinlashtirildi,
 // to'siqlar orasi kengaytirildi va jonlar soni oshirildi.
 var REJIMLAR = {
-  klassik: { ikonka: "🏙️", nom: "Klassik",      boshTezlik: 2.5, oshish: 0.35, masofa: 165, jonlar: 3 },
-  boron:   { ikonka: "❄️", nom: "Qor bo\u2019roni", boshTezlik: 3.5, oshish: 0.5,  masofa: 145, jonlar: 3 },
-  tungi:   { ikonka: "🌙", nom: "Tungi rejim",   boshTezlik: 2.7, oshish: 0.35, masofa: 155, jonlar: 4 }
+  klassik:   { ikonka: "🏙️", nom: "Klassik",      boshTezlik: 2.5, oshish: 0.35, masofa: 165, jonlar: 3 },
+  boron:     { ikonka: "❄️", nom: "Qor bo\u2019roni", boshTezlik: 3.5, oshish: 0.5,  masofa: 145, jonlar: 3 },
+  tungi:     { ikonka: "🌙", nom: "Tungi rejim",   boshTezlik: 2.7, oshish: 0.35, masofa: 155, jonlar: 4 },
+  halloween: { ikonka: "🎃", nom: "Halloween",    boshTezlik: 3.0, oshish: 0.4,  masofa: 150, jonlar: 3 }
 };
 var rejim = "klassik";
 
@@ -129,7 +130,7 @@ var ACHIEVEMENTS = [
   { id: "ball25",   ikon: "🌟", nom: "Yorqin natija",  tavsif: "Bir o'yinda 25 ball to'plang", shart: function (ctx) { return ctx.ball >= 25; } },
   { id: "ball50",   ikon: "💫", nom: "Usta",           tavsif: "Bir o'yinda 50 ball to'plang", shart: function (ctx) { return ctx.ball >= 50; } },
   { id: "ball100",  ikon: "👑", nom: "Afsona",         tavsif: "Bir o'yinda 100 ball to'plang", shart: function (ctx) { return ctx.ball >= 100; } },
-  { id: "rejimchi", ikon: "🗺️", nom: "Sayohatchi",     tavsif: "Barcha 3 rejimda o'ynang", shart: function (ctx) { return ctx.stats.rejimlar.length >= 3; } },
+  { id: "rejimchi", ikon: "🗺️", nom: "Sayohatchi",     tavsif: "Barcha 4 rejimda o'ynang", shart: function (ctx) { return ctx.stats.rejimlar.length >= 4; } },
   { id: "sovgachi", ikon: "🎁", nom: "Sovg'a ustasi",  tavsif: "Jami 20 ta sovg'a qutisi yig'ing", shart: function (ctx) { return ctx.stats.jamiSovgalar >= 20; } },
   { id: "kombochi", ikon: "🔥", nom: "Olov seriya",    tavsif: "Bir o'yinda 10 ta ketma-ket to'siqdan o'ting", shart: function (ctx) { return ctx.comboEngYuqori >= 10; } },
   { id: "sodiq",    ikon: "📅", nom: "Sodiq o'yinchi", tavsif: "3 kun ketma-ket o'ynang", shart: function (ctx) { return ctx.streak >= 3; } }
@@ -273,14 +274,19 @@ muteBtn.addEventListener("click", function (e) {
 muteBtn.addEventListener("touchstart", function (e) { e.stopPropagation(); });
 
 var audioCtx = null;
-function ovoz(chastota, davomiylik, turi) {
+// chastotaOxiri (ixtiyoriy) berilsa, tovush shu chastotaga qarab "sweep" qiladi —
+// natijada tovush tekis emas, boyroq va jonli eshitiladi.
+function ovoz(chastota, davomiylik, turi, chastotaOxiri) {
   if (!ovozYoniq) return;
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     var osc = audioCtx.createOscillator();
     var gain = audioCtx.createGain();
     osc.type = turi || "sine";
-    osc.frequency.value = chastota;
+    osc.frequency.setValueAtTime(chastota, audioCtx.currentTime);
+    if (chastotaOxiri) {
+      osc.frequency.exponentialRampToValueAtTime(chastotaOxiri, audioCtx.currentTime + davomiylik);
+    }
     gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + davomiylik);
     osc.connect(gain);
@@ -289,12 +295,12 @@ function ovoz(chastota, davomiylik, turi) {
     osc.stop(audioCtx.currentTime + davomiylik);
   } catch (e) {}
 }
-function sakrashOvozi()  { ovoz(500, 0.12, "square"); }
-function ballOvozi()     { ovoz(880, 0.15, "sine"); }
-function yiqilishOvozi() { ovoz(120, 0.5, "sawtooth"); }
-function sovgaOvozi()    { ovoz(660, 0.1, "sine"); setTimeout(function () { ovoz(990, 0.15, "sine"); }, 100); }
-function konfetOvozi()   { ovoz(880, 0.08, "triangle"); setTimeout(function () { ovoz(1046, 0.15, "triangle"); }, 90); }
-function zarbaOvozi()    { ovoz(220, 0.2, "square"); }
+function sakrashOvozi()  { ovoz(460, 0.12, "square", 700); }
+function ballOvozi()     { ovoz(880, 0.14, "sine", 1240); }
+function yiqilishOvozi() { ovoz(260, 0.55, "sawtooth", 50); }
+function sovgaOvozi()    { ovoz(660, 0.1, "sine", 860); setTimeout(function () { ovoz(990, 0.18, "sine", 1320); }, 100); }
+function konfetOvozi()   { ovoz(880, 0.08, "triangle", 1046); setTimeout(function () { ovoz(1046, 0.18, "triangle", 1568); }, 90); }
+function zarbaOvozi()    { ovoz(300, 0.22, "square", 90); }
 
 // ---- Qor va yulduzlar ----
 function yulduzlarOsish() {
@@ -309,10 +315,16 @@ function yulduzlarOsish() {
 }
 function qorTushir() {
   var qor = document.createElement("div");
-  qor.className = "qor";
-  var olcham = Math.random() * 5 + 3;
-  qor.style.width = olcham + "px";
-  qor.style.height = olcham + "px";
+  if (rejim === "halloween") {
+    qor.className = "yarasa";
+    qor.textContent = "🦇";
+    qor.style.fontSize = (Math.random() * 10 + 14) + "px";
+  } else {
+    qor.className = "qor";
+    var olcham = Math.random() * 5 + 3;
+    qor.style.width = olcham + "px";
+    qor.style.height = olcham + "px";
+  }
   qor.style.left = Math.random() * VIRTUAL_W + "px";
   qor.style.setProperty("--qor-masofa", (VIRTUAL_H + 40) + "px");
   qor.style.animationDuration = (Math.random() * 4 + 5) + "s";
@@ -371,9 +383,12 @@ function menuHtml() {
     streakHtml +
     "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Boshlash</button>" +
     "<div class=\"rejim-qatori\">" +
-      rejimTugmasi("klassik") + rejimTugmasi("boron") + rejimTugmasi("tungi") +
+      rejimTugmasi("klassik") + rejimTugmasi("boron") + rejimTugmasi("tungi") + rejimTugmasi("halloween") +
     "</div>" +
     kontaktTugmalari();
+}
+function temaYangilash() {
+  oyin.classList.toggle("tema-halloween", rejim === "halloween");
 }
 function rejimlarniUlash() {
   xabar.querySelectorAll(".rejim").forEach(function (btn) {
@@ -381,6 +396,7 @@ function rejimlarniUlash() {
       rejim = btn.getAttribute("data-rejim");
       xabar.querySelectorAll(".rejim").forEach(function (b) { b.classList.remove("tanlangan"); });
       btn.classList.add("tanlangan");
+      temaYangilash();
       ovoz(700, 0.08, "triangle");
     });
   });
@@ -393,6 +409,7 @@ function menuKorsat() {
   rejimlarniUlash();
   tolqinlarniUlash();
   pauzaTugma.classList.add("hidden");
+  temaYangilash();
 }
 var BARCHA_PANELLAR = ["haqidaPanel", "kontaktPanel", "yutuqlarPanel", "skinlarPanel", "premiumPanel"];
 function menuQaytish() {
@@ -450,6 +467,7 @@ pauzaTugma.addEventListener("touchstart", function (e) { e.stopPropagation(); })
 function boshlash() {
   var sozlama = REJIMLAR[rejim];
   moslash();
+  temaYangilash();
   y = Math.round(VIRTUAL_H / 2) - 50; tezlik = 0; ball = 0;
   toqTezligi = sozlama.boshTezlik * (premiumOchildi ? 0.85 : 1);
   jonlar = sozlama.jonlar + (premiumOchildi ? 1 : 0);
@@ -541,11 +559,26 @@ function toqQosh() {
     sovga.style.top = (yuqoriBalandlik + oraliq / 2 - 15) + "px";
     juftlik.appendChild(sovga);
   }
+
+  // 4-darajadan boshlab, sovg'asiz to'siqlarda — qo'shimcha harakatlanuvchi xavf
+  // (Halloween rejimida 👻 arvoh, boshqa rejimlarda 🧊 muz bo'lagi). Gap ichida
+  // mustaqil tebranadi va tegib ketsa jon kamayadi (ustunga tegish bilan bir xil).
+  var daraja = Math.floor(ball / 5) + 1;
+  var xavf = null;
+  if (daraja >= 4 && !sovga && Math.random() < 0.45) {
+    var xavfEl = document.createElement("div");
+    xavfEl.className = "xavf";
+    xavfEl.textContent = rejim === "halloween" ? "👻" : "🧊";
+    juftlik.appendChild(xavfEl);
+    xavf = { el: xavfEl, faza: Math.random() * 6.28 };
+  }
+
   oyin.appendChild(juftlik);
   toqlar.push({
     juftlik: juftlik, x: VIRTUAL_W, yuqoriBalandlik: yuqoriBalandlik,
     ogish: 0, faza: Math.random() * 6.28,
-    harakat: false, sovga: sovga, sovgaOlindi: false, hisoblangan: false
+    harakat: false, sovga: sovga, sovgaOlindi: false, hisoblangan: false,
+    xavf: xavf
   });
 }
 
@@ -659,6 +692,20 @@ function sikl() {
       if (t.x < 116 && t.x + 60 > 80) {
         if (invuln === 0) {
           if (y < t.yuqoriBalandlik + t.ogish || y + 36 > t.yuqoriBalandlik + ORALIQ + t.ogish) {
+            tegish();
+          }
+        }
+      }
+
+      // Harakatlanuvchi xavf (👻/🧊) — gap ichida mustaqil tebranadi
+      if (t.xavf) {
+        t.xavf.faza += 0.05;
+        var xavfAmplituda = Math.max(10, Math.min(35, ORALIQ / 2 - 20));
+        var xavfMahalliyY = t.yuqoriBalandlik + ORALIQ / 2 + Math.sin(t.xavf.faza) * xavfAmplituda - 14;
+        t.xavf.el.style.top = xavfMahalliyY + "px";
+        if (t.x < 116 && t.x + 60 > 80 && invuln === 0) {
+          var xavfDunyoY = xavfMahalliyY + 14 + t.ogish;
+          if (Math.abs((y + 18) - xavfDunyoY) < 24) {
             tegish();
           }
         }

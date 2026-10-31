@@ -13,7 +13,8 @@ Qor bo'ronlari va Rojdestvo bezaklari orasidan sayohat qiluvchi kichik koptok ha
   - 🏙️ **Klassik** — oddiy tezlik, asta-sekin tun cho'kadi.
   - ❄️ **Qor bo'roni** — tezroq o'yin.
   - 🌙 **Tungi rejim** — koptok atrofida yorug'lik doirasi (fonar effekti).
-- **Daraja:** har 5 balldan keyin daraja oshadi va to'siqlar tezlashadi; 4-darajadan boshlab to'siqlar tebranib harakat qiladi.
+  - 🎃 **Halloween** — to'q binafsha/qora osmon, to'siqlar sariq-qora rangda, qor o'rniga yarasalar uchadi.
+- **Daraja:** har 5 balldan keyin daraja oshadi va to'siqlar tezlashadi; 4-darajadan boshlab to'siqlar tebranib harakat qiladi va ba'zan ichida qo'shimcha harakatlanuvchi xavf (👻 Halloween'da / 🧊 boshqa rejimlarda) paydo bo'ladi.
 - **Combo:** ketma-ket 5 ta to'siqdan urilmay o'tsang, 🔥 combo bonusi sifatida +2 ball olasan.
 - **Yutuqlar:** 🏆 tugmasidan turli maqsadlarni (ball, sovg'alar, combo, kunlik seriya va h.k.) ko'rib, bajarib boring.
 - **Koptok ko'rinishlari:** 🎨 tugmasidan rekord va yutuqlar orqali ochiladigan yangi ranglarni tanlang.
