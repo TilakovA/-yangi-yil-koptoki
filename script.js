@@ -8,6 +8,7 @@ var bonusDiv = document.getElementById("bonus");
 var muteBtn = document.getElementById("muteBtn");
 var pauzaTugma = document.getElementById("pauzaTugma");
 var pauzaPanel = document.getElementById("pauzaPanel");
+var yangiYilBanner = document.getElementById("yangiYilBanner");
 var tunDiv = document.getElementById("tun");
 var fonQoplama = document.getElementById("fonQoplama");
 var xabar = document.getElementById("xabar");
@@ -301,6 +302,69 @@ function yiqilishOvozi() { ovoz(260, 0.55, "sawtooth", 50); }
 function sovgaOvozi()    { ovoz(660, 0.1, "sine", 860); setTimeout(function () { ovoz(990, 0.18, "sine", 1320); }, 100); }
 function konfetOvozi()   { ovoz(880, 0.08, "triangle", 1046); setTimeout(function () { ovoz(1046, 0.18, "triangle", 1568); }, 90); }
 function zarbaOvozi()    { ovoz(300, 0.22, "square", 90); }
+
+// ---- Yangi yil mo'jizasi ----
+// 31-dekabr soat 23:55 dan boshlab yuqorida sanoq banneri chiqadi.
+// Soat 00:00 bo'lib, yangi yilga o'tilganda — bir martalik tabrik animatsiyasi
+// (konfeti portlashi + tabrik matni) ko'rsatiladi. Har bir yil uchun faqat bir
+// marta chiqishi uchun localStorage'da belgi saqlanadi.
+function yangiYilBannerYangilash() {
+  var hozir = new Date();
+  var dekabr31Mi = hozir.getMonth() === 11 && hozir.getDate() === 31;
+  var vaqtMos = dekabr31Mi && hozir.getHours() === 23 && hozir.getMinutes() >= 55;
+  if (!vaqtMos) { yangiYilBanner.classList.add("hidden"); return; }
+  var maqsad = new Date(hozir.getFullYear() + 1, 0, 1, 0, 0, 0, 0);
+  var qolgan = Math.max(0, maqsad.getTime() - hozir.getTime());
+  var daqiqa = Math.floor(qolgan / 60000);
+  var soniya = Math.floor((qolgan % 60000) / 1000);
+  yangiYilBanner.textContent = "🎆 Yangi yilgacha: " + daqiqa + ":" + (soniya < 10 ? "0" : "") + soniya;
+  yangiYilBanner.classList.remove("hidden");
+}
+function mojizaKorsat() {
+  var qoplama = document.createElement("div");
+  qoplama.className = "mojiza-qoplama";
+  qoplama.innerHTML = "<div class=\"mojiza-matn\">🎉<br>Yangi yil bilan!<br><span>" +
+    (new Date().getFullYear()) + "</span></div>";
+  oyin.appendChild(qoplama);
+
+  for (var i = 0; i < 55; i++) {
+    (function (idx) {
+      setTimeout(function () {
+        var k = document.createElement("div");
+        k.className = "mojiza-konfet";
+        k.style.left = Math.random() * VIRTUAL_W + "px";
+        k.style.background = SHARCHA_RANGLARI[Math.floor(Math.random() * SHARCHA_RANGLARI.length)];
+        k.style.animationDuration = (Math.random() * 2 + 2.3) + "s";
+        k.style.setProperty("--mojiza-masofa", (VIRTUAL_H + 60) + "px");
+        qoplama.appendChild(k);
+        setTimeout(function () { k.remove(); }, 5200);
+      }, idx * 35);
+    })(i);
+  }
+
+  ovoz(784, 0.16, "sine", 1047);
+  setTimeout(function () { ovoz(1047, 0.16, "sine", 1568); }, 160);
+  setTimeout(function () { ovoz(1568, 0.22, "sine", 2093); }, 320);
+
+  setTimeout(function () {
+    qoplama.classList.add("mojiza-ketish");
+    setTimeout(function () { qoplama.remove(); }, 600);
+  }, 6000);
+}
+function yangiYilTekshir() {
+  yangiYilBannerYangilash();
+  var hozir = new Date();
+  if (hozir.getMonth() === 0 && hozir.getDate() === 1) {
+    var kalit = "koptokMojiza" + hozir.getFullYear();
+    var korsatilganmi = false;
+    try { korsatilganmi = localStorage.getItem(kalit) === "1"; } catch (e) {}
+    if (!korsatilganmi) {
+      mojizaKorsat();
+      try { localStorage.setItem(kalit, "1"); } catch (e) {}
+    }
+  }
+}
+setInterval(yangiYilTekshir, 1000);
 
 // ---- Qor va yulduzlar ----
 function yulduzlarOsish() {
@@ -890,3 +954,4 @@ if (premiumOchildi) document.getElementById("premiumBelgisi").classList.remove("
 elementTolqinlarUlash(pauzaPanel);
 moslash();
 menuKorsat();
+yangiYilTekshir();
