@@ -5,6 +5,7 @@ var rekordDiv = document.getElementById("rekord");
 var darajaDiv = document.getElementById("daraja");
 var jonlarDiv = document.getElementById("jonlar");
 var bonusDiv = document.getElementById("bonus");
+var kuchHolati = document.getElementById("kuchHolati");
 var muteBtn = document.getElementById("muteBtn");
 var pauzaTugma = document.getElementById("pauzaTugma");
 var pauzaPanel = document.getElementById("pauzaPanel");
@@ -40,6 +41,9 @@ var ball = 0, oynayapti = false, toqTezligi = 3;
 var jonlar = 2, invuln = 0, sekinVaqti = 0, sovgalarSoni = 0, kadrlar = 0;
 var combo = 0, comboEngYuqori = 0;
 var pauzada = false;
+var joriySovgalar = 0;
+var kuchlar = [];
+var magnitVaqti = 0, qalqonFaol = false;
 var gravitatsiya = 0.42, sakrashKuchi = -7.6;
 var SHARCHA_RANGLARI = ["#e53935", "#43a047", "#ffd54f", "#42a5f5", "#ab47bc", "#ffffff"];
 
@@ -79,6 +83,24 @@ try {
 } catch (e) {}
 function statsSaqlash() { try { localStorage.setItem("koptokStats", JSON.stringify(stats)); } catch (e) {} }
 
+// ---- Tangalar (o'yin ichidagi valyuta — fon do'konida sarflanadi) ----
+var tangalar = 0;
+try {
+  tangalar = parseInt(localStorage.getItem("koptokTanga"), 10);
+  if (isNaN(tangalar)) tangalar = 0;
+} catch (e) { tangalar = 0; }
+function tangaSaqlash() { try { localStorage.setItem("koptokTanga", String(tangalar)); } catch (e) {} }
+
+// ---- Kunlik o'yinlar soni (kundalik topshiriqlar uchun) ----
+var kunlikOyinlar = { sana: "", son: 0 };
+try { kunlikOyinlar = JSON.parse(localStorage.getItem("koptokKunlikOyinlar") || "{}"); } catch (e) {}
+function kunlikOyinSanash() {
+  var bugun = sanaBugun();
+  if (kunlikOyinlar.sana !== bugun) kunlikOyinlar = { sana: bugun, son: 0 };
+  kunlikOyinlar.son++;
+  try { localStorage.setItem("koptokKunlikOyinlar", JSON.stringify(kunlikOyinlar)); } catch (e) {}
+}
+
 // ---- Global statistika (Firebase) — faqat developer ko'radigan admin panel uchun ----
 var firebaseTayyor = false;
 var firestoreDb = null;
@@ -112,6 +134,72 @@ function statistikaYubor(natija) {
   } catch (e) {}
 }
 
+// ---- Global reyting (TOP 10) — hamma o'yinchiga ochiq ----
+var REYTING_ISM_KALITI = "koptokIsm";
+function oynaIsmiOlish() {
+  var ism = null;
+  try { ism = localStorage.getItem(REYTING_ISM_KALITI); } catch (e) {}
+  if (!ism) {
+    ism = "O'yinchi" + Math.floor(Math.random() * 9000 + 1000);
+    try { localStorage.setItem(REYTING_ISM_KALITI, ism); } catch (e) {}
+  }
+  return ism;
+}
+function ismniSaqlash() {
+  var input = document.getElementById("reytingIsm");
+  if (!input) return;
+  var yangiIsm = (input.value || "").trim().slice(0, 24);
+  if (!yangiIsm) return;
+  try { localStorage.setItem(REYTING_ISM_KALITI, yangiIsm); } catch (e) {}
+  reytingYubor();
+  reytingYukla();
+  ovoz(700, 0.08, "triangle");
+}
+function reytingYubor() {
+  if (!firebaseTayyor || rekord <= 0) return;
+  try {
+    firestoreDb.collection("reyting").doc(qurilmaId()).set({
+      ism: oynaIsmiOlish(),
+      ball: rekord,
+      vaqt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {}
+}
+function reytingYukla() {
+  var royxatEl = document.getElementById("reytingRoyxati");
+  var ismInput = document.getElementById("reytingIsm");
+  if (!royxatEl) return;
+  if (ismInput) ismInput.value = oynaIsmiOlish();
+  if (!firebaseTayyor) {
+    royxatEl.innerHTML = "<p class=\"reyting-xabar\">Reyting yuklanmadi (internet kerak).</p>";
+    return;
+  }
+  royxatEl.innerHTML = "<p class=\"reyting-xabar\">Yuklanmoqda...</p>";
+  firestoreDb.collection("reyting").orderBy("ball", "desc").limit(10).get().then(function (snap) {
+    if (snap.empty) {
+      royxatEl.innerHTML = "<p class=\"reyting-xabar\">Hali hech kim yo'q. Birinchi bo'ling!</p>";
+      return;
+    }
+    var medallar = ["🥇", "🥈", "🥉"];
+    var html = "";
+    var indeks = 0;
+    snap.forEach(function (doc) {
+      var d = doc.data();
+      var belgi = indeks < 3 ? medallar[indeks] : (indeks + 1) + ".";
+      var ozimniki = doc.id === qurilmaId();
+      html += "<div class=\"reyting-qatori" + (ozimniki ? " ozim" : "") + "\">" +
+        "<span class=\"reyting-orin\">" + belgi + "</span>" +
+        "<span class=\"reyting-ism\">" + (d.ism || "O'yinchi") + (ozimniki ? " (siz)" : "") + "</span>" +
+        "<span class=\"reyting-ball\">" + d.ball + "</span>" +
+        "</div>";
+      indeks++;
+    });
+    royxatEl.innerHTML = html;
+  }).catch(function () {
+    royxatEl.innerHTML = "<p class=\"reyting-xabar\">Yuklab bo'lmadi, qaytadan urinib ko'ring.</p>";
+  });
+}
+
 // ---- Kunlik seriya (streak) ----
 var streak = 0;
 try { streak = (JSON.parse(localStorage.getItem("koptokStreak") || "{}").count) || 0; } catch (e) {}
@@ -122,6 +210,41 @@ function streakYangilash() {
   if (eski.last === bugun) { streak = eski.count || 1; return; }
   streak = (eski.last === kechagiSana()) ? (eski.count || 0) + 1 : 1;
   try { localStorage.setItem("koptokStreak", JSON.stringify({ count: streak, last: bugun })); } catch (e) {}
+}
+
+// ---- Kundalik topshiriqlar ----
+// Har kuni (sana bo'yicha) ro'yxatdan bitta vazifa avtomatik tanlanadi.
+// Bajarilsa — tanga mukofoti beriladi va kuni bo'yicha faqat bir marta hisoblanadi.
+var KUNDALIK_TOPSHIRIQLAR = [
+  { id: "ball15", matn: "Bir o'yinda 15 ball to'plang", mukofot: 20, shart: function (ctx) { return ctx.ball >= 15; } },
+  { id: "sovga3", matn: "Bir o'yinda 3 ta sovg'a yig'ing", mukofot: 20, shart: function (ctx) { return ctx.joriySovgalar >= 3; } },
+  { id: "combo5", matn: "Bir o'yinda 5 ta ketma-ket to'siqdan o'ting", mukofot: 20, shart: function (ctx) { return ctx.comboEngYuqori >= 5; } },
+  { id: "oyin2",  matn: "Bugun kamida 2 marta o'ynang", mukofot: 15, shart: function (ctx) { return ctx.bugungiOyinlar >= 2; } },
+  { id: "ball30", matn: "Bir o'yinda 30 ball to'plang", mukofot: 30, shart: function (ctx) { return ctx.ball >= 30; } }
+];
+function bugungiTopshiriq() {
+  var bugun = sanaBugun();
+  var yigindi = 0;
+  for (var i = 0; i < bugun.length; i++) yigindi += bugun.charCodeAt(i);
+  return KUNDALIK_TOPSHIRIQLAR[yigindi % KUNDALIK_TOPSHIRIQLAR.length];
+}
+function topshiriqHolatiOlish() {
+  var bugun = sanaBugun();
+  var holat = { sana: "", bajarildi: false };
+  try { holat = JSON.parse(localStorage.getItem("koptokTopshiriq") || "{}"); } catch (e) {}
+  if (holat.sana !== bugun) return { sana: bugun, bajarildi: false };
+  return holat;
+}
+function kundalikTopshiriqniTekshir(ctx) {
+  var holat = topshiriqHolatiOlish();
+  if (holat.bajarildi) return null;
+  var vazifa = bugungiTopshiriq();
+  if (!vazifa.shart(ctx)) return null;
+  holat.bajarildi = true;
+  try { localStorage.setItem("koptokTopshiriq", JSON.stringify(holat)); } catch (e) {}
+  tangalar += vazifa.mukofot;
+  tangaSaqlash();
+  return vazifa;
 }
 
 // ---- Yutuqlar (achievements) ----
@@ -227,6 +350,73 @@ function skinlarRender() {
       "</button>";
   });
   document.getElementById("skinlarRoyxati").innerHTML = html;
+}
+
+// ---- Fon do'koni (tangaga sotib olinadigan premium fonlar) ----
+var FONLAR = [
+  { id: "standart",  nom: "Standart",            narx: 0 },
+  { id: "shahar",    nom: "Shahar tunda",        narx: 85 },
+  { id: "galaktika", nom: "Galaktika",           narx: 100 },
+  { id: "shimoliy",  nom: "Shimoliy chiroqlar",  narx: 150 }
+];
+var fonlarOchilgan = ["standart"];
+try {
+  var saqlanganFonlar = JSON.parse(localStorage.getItem("koptokFonlar") || "[]");
+  if (saqlanganFonlar.length) fonlarOchilgan = fonlarOchilgan.concat(saqlanganFonlar.filter(function (id) { return id !== "standart"; }));
+} catch (e) {}
+var joriyFon = "standart";
+try { joriyFon = localStorage.getItem("koptokJoriyFon") || "standart"; } catch (e) {}
+
+function fonOchiqmi(id) { return fonlarOchilgan.indexOf(id) !== -1; }
+function fonTanlash(id) {
+  if (!fonOchiqmi(id)) return;
+  joriyFon = id;
+  try { localStorage.setItem("koptokJoriyFon", id); } catch (e) {}
+  temaYangilash();
+  fonlarRender();
+  ovoz(700, 0.08, "triangle");
+}
+function fonSotibOl(id) {
+  var fon = null;
+  for (var i = 0; i < FONLAR.length; i++) if (FONLAR[i].id === id) fon = FONLAR[i];
+  if (!fon || fonOchiqmi(id)) return;
+  var xabarEl = document.getElementById("fonXabar");
+  if (tangalar < fon.narx) {
+    if (xabarEl) { xabarEl.textContent = "❌ Tangangiz yetarli emas."; xabarEl.style.color = "#ff8a80"; }
+    zarbaOvozi();
+    return;
+  }
+  tangalar -= fon.narx;
+  tangaSaqlash();
+  fonlarOchilgan.push(id);
+  try { localStorage.setItem("koptokFonlar", JSON.stringify(fonlarOchilgan)); } catch (e) {}
+  if (xabarEl) { xabarEl.textContent = "✅ \"" + fon.nom + "\" sotib olindi!"; xabarEl.style.color = "#69f0ae"; }
+  ovoz(990, 0.18, "sine", 1320);
+  fonTanlash(id);
+}
+function fonlarRender() {
+  var balansEl = document.getElementById("tangaBalansi");
+  if (balansEl) balansEl.textContent = "💎 " + tangalar;
+  var xabarEl = document.getElementById("fonXabar");
+  if (xabarEl) xabarEl.textContent = "";
+  var html = "";
+  FONLAR.forEach(function (f) {
+    var ochiq = fonOchiqmi(f.id);
+    var faol = joriyFon === f.id;
+    html += "<div class=\"fon-dona" + (faol ? " tanlangan" : "") + "\">" +
+      "<div class=\"fon-oldindan-korish" + (f.id !== "standart" ? " fon-" + f.id : " fon-standart-korish") + "\"></div>" +
+      "<small>" + f.nom + "</small>";
+    if (faol) {
+      html += "<span class=\"fon-holat\">✅ Tanlangan</span>";
+    } else if (ochiq) {
+      html += "<button class=\"liquid rejim fon-tugma\" onclick=\"fonTanlash('" + f.id + "')\">Tanlash</button>";
+    } else {
+      html += "<button class=\"liquid rejim fon-tugma\" onclick=\"fonSotibOl('" + f.id + "')\">💎 " + f.narx + " — Sotib olish</button>";
+    }
+    html += "</div>";
+  });
+  document.getElementById("fonlarRoyxati").innerHTML = html;
+  elementTolqinlarUlash(document.getElementById("fonlarPanel"));
 }
 
 // ---- Premium (yashirin bo'lim) ----
@@ -431,28 +621,46 @@ function kontaktTugmalari() {
   var infoSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"></circle><line x1=\"12\" y1=\"11\" x2=\"12\" y2=\"16.5\"></line><circle cx=\"12\" cy=\"7.6\" r=\"1.15\" fill=\"currentColor\" stroke=\"none\"></circle></svg>";
   var mailSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"5.5\" width=\"18\" height=\"13\" rx=\"2.2\"></rect><path d=\"M4 7l8 6 8-6\"></path></svg>";
   var trophySvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 4h8v4a4 4 0 0 1-8 0V4z\"></path><path d=\"M8 5H5a3 3 0 0 0 3 3\"></path><path d=\"M16 5h3a3 3 0 0 1-3 3\"></path><path d=\"M12 12v3.5\"></path><path d=\"M9 20h6\"></path><path d=\"M10 15.5h4v1.8a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-1.8z\"></path></svg>";
+  var fonSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"></rect><path d=\"M3 16l5-5 4 4 3-3 6 6\"></path><circle cx=\"8.5\" cy=\"8.5\" r=\"1.4\" fill=\"currentColor\" stroke=\"none\"></circle></svg>";
+  var reytingSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"5\" y1=\"20\" x2=\"5\" y2=\"13\"></line><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"8\"></line><line x1=\"19\" y1=\"20\" x2=\"19\" y2=\"4\"></line></svg>";
   var paletteSvg = "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 21a9 9 0 0 1 0-18 7 7 0 0 1 7 7c0 2.2-1.8 3.5-3.7 3.5h-1.1a1.7 1.7 0 0 0 0 3.4H15a1.3 1.3 0 0 1 0 2.6 9 9 0 0 1-3 1.5z\"></path><circle cx=\"7.5\" cy=\"10.5\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"></circle><circle cx=\"10.5\" cy=\"7\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"></circle><circle cx=\"15\" cy=\"7.5\" r=\"1.1\" fill=\"currentColor\" stroke=\"none\"></circle></svg>";
   return "<div class=\"utility-qatori\">" +
     "<button class=\"ikonka-tugma\" title=\"O\u2019yin haqida\" onclick=\"panelKorsat(\'haqidaPanel\')\">" + infoSvg + "</button>" +
     "<button class=\"ikonka-tugma\" title=\"Yutuqlar\" onclick=\"panelKorsat(\'yutuqlarPanel\')\">" + trophySvg + "</button>" +
     "<button class=\"ikonka-tugma\" title=\"Skinlar\" onclick=\"panelKorsat(\'skinlarPanel\')\">" + paletteSvg + "</button>" +
+    "<button class=\"ikonka-tugma\" title=\"Fonlar\" onclick=\"panelKorsat(\'fonlarPanel\')\">" + fonSvg + "</button>" +
+    "<button class=\"ikonka-tugma\" title=\"Reyting\" onclick=\"panelKorsat(\'reytingPanel\')\">" + reytingSvg + "</button>" +
     "<button class=\"ikonka-tugma\" title=\"Bog\u2019lanish\" onclick=\"panelKorsat(\'kontaktPanel\')\">" + mailSvg + "</button>" +
     "</div>";
 }
 function menuHtml() {
-  var streakHtml = streak >= 1 ? "<p class=\"streak-badge\">\uD83D\uDD25 " + streak + " kunlik seriya</p>" : "";
-  return "<h1 onclick=\"logoBosildi()\">Yangi Yil Koptoki 🎄</h1>" +
+  var streakHtml = streak >= 1 ? "<span class=\"streak-badge\">\uD83D\uDD25 " + streak + " kunlik seriya</span>" : "";
+  var tangaHtml = "<span class=\"tanga-badge\">\uD83D\uDC8E " + tangalar + "</span>";
+  var topshiriq = bugungiTopshiriq();
+  var topshiriqHolati = topshiriqHolatiOlish();
+  var topshiriqHtml = "<p class=\"topshiriq-matn" + (topshiriqHolati.bajarildi ? " bajarilgan" : "") + "\">" +
+    (topshiriqHolati.bajarildi ? "\u2705 Bugungi topshiriq bajarildi!" : "\uD83C\uDFAF " + topshiriq.matn + " (\uD83D\uDC8E+" + topshiriq.mukofot + ")") +
+    "</p>";
+  return "<h1 onclick=\"logoBosildi()\">Yangi Yil Koptoki \uD83C\uDF84</h1>" +
     "<p>Probel bosing yoki ekranni bosib sakrating</p>" +
     "<p>Konfet tayoqchalarga tegmang, sovg'alar yig'ing!</p>" +
-    streakHtml +
+    "<div class=\"menu-belgilar\">" + streakHtml + tangaHtml + "</div>" +
+    topshiriqHtml +
     "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Boshlash</button>" +
     "<div class=\"rejim-qatori\">" +
       rejimTugmasi("klassik") + rejimTugmasi("boron") + rejimTugmasi("tungi") + rejimTugmasi("halloween") +
     "</div>" +
     kontaktTugmalari();
 }
+var FON_SINFLARI = ["fon-shahar", "fon-galaktika", "fon-shimoliy"];
 function temaYangilash() {
-  oyin.classList.toggle("tema-halloween", rejim === "halloween");
+  oyin.classList.remove("tema-halloween");
+  FON_SINFLARI.forEach(function (c) { oyin.classList.remove(c); });
+  if (rejim === "halloween") {
+    oyin.classList.add("tema-halloween");
+  } else if (joriyFon !== "standart") {
+    oyin.classList.add("fon-" + joriyFon);
+  }
 }
 function rejimlarniUlash() {
   xabar.querySelectorAll(".rejim").forEach(function (btn) {
@@ -475,7 +683,7 @@ function menuKorsat() {
   pauzaTugma.classList.add("hidden");
   temaYangilash();
 }
-var BARCHA_PANELLAR = ["haqidaPanel", "kontaktPanel", "yutuqlarPanel", "skinlarPanel", "premiumPanel"];
+var BARCHA_PANELLAR = ["haqidaPanel", "kontaktPanel", "yutuqlarPanel", "skinlarPanel", "premiumPanel", "fonlarPanel", "reytingPanel"];
 function menuQaytish() {
   BARCHA_PANELLAR.forEach(function (pid) {
     var el = document.getElementById(pid);
@@ -492,6 +700,8 @@ function panelKorsat(id) {
   xabar.classList.add("hidden");
   if (id === "yutuqlarPanel") yutuqlarRender();
   if (id === "skinlarPanel") skinlarRender();
+  if (id === "fonlarPanel") fonlarRender();
+  if (id === "reytingPanel") reytingYukla();
 }
 function panelYop() {
   BARCHA_PANELLAR.forEach(function (pid) {
@@ -538,6 +748,11 @@ function boshlash() {
   invuln = 0; sekinVaqti = 0; sovgalarSoni = 0; kadrlar = 0;
   combo = 0; comboEngYuqori = 0;
   pauzada = false;
+  joriySovgalar = 0;
+  magnitVaqti = 0; qalqonFaol = false;
+  kuchlar.forEach(function (k) { k.el.remove(); });
+  kuchlar = [];
+  kuchHolati.classList.add("hidden");
   toqlar.forEach(function (t) { t.juftlik.remove(); });
   toqlar = [];
   konfetlar.forEach(function (k) { k.el.remove(); });
@@ -547,6 +762,7 @@ function boshlash() {
   if (stats.rejimlar.indexOf(rejim) === -1) stats.rejimlar.push(rejim);
   statsSaqlash();
   streakYangilash();
+  kunlikOyinSanash();
   panelYop();
   xabar.classList.add("hidden");
   pauzaTugma.classList.remove("hidden");
@@ -659,6 +875,13 @@ function oshishYozuvi(x, y2, matn) {
 // ---- Zarba va jonlar ----
 function tegish() {
   if (invuln > 0) return;
+  if (qalqonFaol) {
+    qalqonFaol = false;
+    invuln = 60;
+    koptok.classList.add("mir");
+    ovoz(900, 0.15, "triangle", 500);
+    return;
+  }
   jonlar--;
   combo = 0;
   jonlarYangilash();
@@ -750,6 +973,17 @@ function sikl() {
           oyin.appendChild(k);
           konfetlar.push({ el: k, x: 98, y: y + 18, umr: 360 });
         }
+        // Kuch-quvvat paydo bo'lishi (Magnit / Qalqon)
+        if (Math.random() < 0.07) {
+          var kTuri = Math.random() < 0.5 ? "magnit" : "qalqon";
+          var kEl = document.createElement("div");
+          kEl.className = "kuch-dona";
+          kEl.textContent = kTuri === "magnit" ? "🧲" : "🛡️";
+          kEl.style.left = "85px";
+          kEl.style.top = (y + 18 - 14) + "px";
+          oyin.appendChild(kEl);
+          kuchlar.push({ el: kEl, x: 98, y: y + 18, turi: kTuri, umr: 360 });
+        }
       }
 
       // To'qnashuv
@@ -775,16 +1009,18 @@ function sikl() {
         }
       }
 
-      // Sovg'ani yig'ish
+      // Sovg'ani yig'ish (Magnit faol bo'lsa — qamrov kengayadi)
       if (t.sovga && !t.sovgaOlindi) {
         var gy = t.yuqoriBalandlik + t.ogish + ORALIQ / 2;
-        if (Math.abs(t.x + 30 - 98) < 30 && Math.abs(gy - (y + 18)) < 30) {
+        var sovgaQamrovi = magnitVaqti > 0 ? 95 : 30;
+        if (Math.abs(t.x + 30 - 98) < sovgaQamrovi && Math.abs(gy - (y + 18)) < sovgaQamrovi) {
           t.sovgaOlindi = true;
           t.sovga.remove();
           t.sovga = null;
           ball += 5;
           ballDiv.textContent = ball;
           stats.jamiSovgalar++;
+          joriySovgalar++;
           statsSaqlash();
           sovgaOvozi();
           oshishYozuvi(85, y - 30, "+5");
@@ -816,12 +1052,45 @@ function sikl() {
       }
     }
 
+    // Kuch-quvvatlarni yig'ish (Magnit / Qalqon)
+    for (var ki = kuchlar.length - 1; ki >= 0; ki--) {
+      var kch = kuchlar[ki];
+      kch.umr--;
+      kch.el.style.opacity = String(Math.min(1, kch.umr / 60));
+      if (Math.abs(kch.x - 98) < 28 && Math.abs(kch.y - (y + 18)) < 28) {
+        if (kch.turi === "magnit") {
+          magnitVaqti = 420;
+        } else {
+          qalqonFaol = true;
+        }
+        sovgaOvozi();
+        oshishYozuvi(85, y - 30, kch.turi === "magnit" ? "🧲 Magnit!" : "🛡️ Qalqon!");
+        kch.el.remove();
+        kuchlar.splice(ki, 1);
+      } else if (kch.umr <= 0) {
+        kch.el.remove();
+        kuchlar.splice(ki, 1);
+      }
+    }
+
     // Bonus ko'rsatkichi
     if (sekinVaqti > 0) {
       sekinVaqti--;
       bonusDiv.textContent = "🍭 Sekinlashuv: " + Math.ceil(sekinVaqti / 60) + "s";
     } else {
       bonusDiv.textContent = "";
+    }
+
+    // Kuch-quvvat holati (Magnit sanog'i / Qalqon faolligi)
+    if (magnitVaqti > 0) {
+      magnitVaqti--;
+      kuchHolati.textContent = "🧲 Magnit: " + Math.ceil(magnitVaqti / 60) + "s";
+      kuchHolati.classList.remove("hidden");
+    } else if (qalqonFaol) {
+      kuchHolati.textContent = "🛡️ Qalqon faol";
+      kuchHolati.classList.remove("hidden");
+    } else {
+      kuchHolati.classList.add("hidden");
     }
 
     // Inkoguta tugadi
@@ -833,7 +1102,14 @@ function sikl() {
     // Yer va osmon
     if (y > YER_CHEGARASI || y < 0) {
       combo = 0;
-      if (jonlar <= 1) { jonlar = 0; jonlarYangilash(); yakunlash(); }
+      if (qalqonFaol) {
+        qalqonFaol = false;
+        invuln = 60;
+        koptok.classList.add("mir");
+        ovoz(900, 0.15, "triangle", 500);
+        y = Math.max(0, Math.min(YER_CHEGARASI - 20, y));
+        tezlik = 0;
+      } else if (jonlar <= 1) { jonlar = 0; jonlarYangilash(); yakunlash(); }
       else { jonlar = 1; jonlarYangilash(); invuln = 100; koptok.classList.add("mir"); zarbaOvozi(); y = YER_CHEGARASI - 64; tezlik = 0; }
     }
 
@@ -880,6 +1156,18 @@ function yakunlash() {
   var bugungi = tarix.filter(function (x) { return x.s === bugun; }).map(function (x) { return x.b; });
   var bugungiEngYaxshi = bugungi.length ? Math.max.apply(null, bugungi) : ball;
 
+  // Tanga mukofoti (ball + yig'ilgan sovg'alar asosida)
+  var tangaOlindi = Math.max(0, Math.round(ball / 2) + joriySovgalar);
+  tangalar += tangaOlindi;
+  tangaSaqlash();
+
+  // Kundalik topshiriqni tekshirish
+  var bajarilganTopshiriq = kundalikTopshiriqniTekshir({
+    ball: ball, joriySovgalar: joriySovgalar, comboEngYuqori: comboEngYuqori, bugungiOyinlar: kunlikOyinlar.son
+  });
+
+  if (yangiRekord) reytingYubor();
+
   setTimeout(function () {
     fonQoplama.classList.add("hidden");
     tunDiv.style.opacity = "0";
@@ -887,11 +1175,13 @@ function yakunlash() {
     xabar.innerHTML =
       "<h1>O\u2019yin tugadi!</h1>" +
       "<p>Sizning balingiz: <b>" + ball + "</b></p>" +
-      "<p>Rekord: <b>" + rekord + "</b>" + (yangiRekord ? " — Yangi rekord! 🏆" : "") + "</p>" +
+      "<p>Rekord: <b>" + rekord + "</b>" + (yangiRekord ? " \u2014 Yangi rekord! \uD83C\uDFC6" : "") + "</p>" +
       "<p>Bugungi eng yaxshi natija: <b>" + bugungiEngYaxshi + "</b></p>" +
       "<p>Top 5: " + top5.join(", ") + "</p>" +
+      "<p class=\"tanga-xabar\">\uD83D\uDC8E +" + tangaOlindi + " tanga (jami: " + tangalar + ")</p>" +
+      (bajarilganTopshiriq ? "<p class=\"topshiriq-xabar\">\uD83C\uDFAF Kundalik topshiriq bajarildi! +\uD83D\uDC8E" + bajarilganTopshiriq.mukofot + "</p>" : "") +
       "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Yana o\u2019ynash</button>" +
-      "<button class=\"liquid rejim\" onclick=\"menuQaytish()\">🏠 Bosh menyu</button>";
+      "<button class=\"liquid rejim\" onclick=\"menuQaytish()\">\uD83C\uDFE0 Bosh menyu</button>";
     tolqinlarniUlash();
     yutuqlarniTekshir({ ball: ball, rekord: rekord, stats: stats, comboEngYuqori: comboEngYuqori, streak: streak });
     statistikaYubor(ball);

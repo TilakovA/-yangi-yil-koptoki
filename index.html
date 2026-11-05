@@ -32,6 +32,7 @@
     <div id="daraja">Daraja: 1</div>
     <div id="jonlar">❤️❤️</div>
     <div id="bonus"></div>
+    <div id="kuchHolati" class="hidden"></div>
     <div id="muteBtn">🔊</div>
     <div id="pauzaTugma" class="hidden" title="Pauza">⏸️</div>
     <div id="yangiYilBanner" class="hidden"></div>
@@ -97,6 +98,28 @@
       <button class="bosh-tugma" onclick="pauzaYop()">▶️ Davom ettirish</button>
       <button class="liquid rejim" onclick="qaytaBoshlash()">🔄 Qaytadan boshlash</button>
       <button class="liquid rejim" onclick="pauzadanMenyuga()">🏠 Bosh menyu</button>
+    </div>
+
+    <!-- Fon do'koni paneli -->
+    <div id="fonlarPanel" class="panel hidden">
+      <h2>🖼️ Fonlar</h2>
+      <p>O'ynab tanga to'plang va o'yin uchun premium fonlarni sotib oling.</p>
+      <p id="tangaBalansi" class="tanga-balans">💎 0</p>
+      <div id="fonlarRoyxati" class="fonlar-royxati"></div>
+      <div id="fonXabar" class="fon-xabar"></div>
+      <button class="yopish" onclick="panelYop()">Orqaga</button>
+    </div>
+
+    <!-- Global reyting paneli -->
+    <div id="reytingPanel" class="panel hidden">
+      <h2>🏆 Global reyting</h2>
+      <p>Eng yaxshi 10 o'yinchi (shaxsiy rekordlar bo'yicha):</p>
+      <div id="reytingRoyxati" class="reyting-royxati"></div>
+      <div class="reyting-ism-blok">
+        <input id="reytingIsm" type="text" class="premium-input" placeholder="Ismingiz" maxlength="24">
+        <button class="liquid rejim" onclick="ismniSaqlash()">Saqlash</button>
+      </div>
+      <button class="yopish" onclick="panelYop()">Orqaga</button>
     </div>
   </div>
 </div>

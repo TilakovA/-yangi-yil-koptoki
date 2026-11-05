@@ -97,6 +97,48 @@ body {
   background: #ff8f00;
 }
 
+/* ---- Fon do'koni: sotib olingan fon tangaga o'yin ichida qo'llaniladi ---- */
+#oyin.fon-shahar {
+  background: linear-gradient(to bottom, #050514 0%, #121244 45%, #2b1b52 85%, #3c2465 100%);
+}
+#oyin.fon-shahar::after {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 130px; z-index: 0; opacity: .92;
+  background-image:
+    linear-gradient(#07071c, #07071c),
+    linear-gradient(#0d0d2a, #0d0d2a),
+    linear-gradient(#131335, #131335);
+  background-repeat: repeat-x;
+  background-size: 46px 60px, 46px 90px, 46px 42px;
+  background-position: 0 bottom, 18px bottom, 34px bottom;
+}
+#oyin.fon-shahar::before {
+  content: ""; position: absolute; top: 40px; right: 50px; width: 46px; height: 46px; z-index: 0;
+  border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fffde7, #ffe9a8 60%, transparent 75%);
+  box-shadow: 0 0 30px 10px rgba(255,245,200,.35);
+}
+#oyin.fon-galaktika {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255,105,180,.35), transparent 45%),
+    radial-gradient(circle at 80% 25%, rgba(94,234,212,.3), transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(147,51,234,.4), transparent 55%),
+    linear-gradient(to bottom, #0a0520 0%, #1a0b3d 50%, #2a0f4f 100%);
+}
+#oyin.fon-shimoliy {
+  background: linear-gradient(to bottom, #020814 0%, #041225 55%, #06182e 100%);
+}
+#oyin.fon-shimoliy::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; opacity: .55; mix-blend-mode: screen;
+  background:
+    linear-gradient(120deg, transparent 10%, rgba(80,255,170,.45) 30%, transparent 48%),
+    linear-gradient(100deg, transparent 35%, rgba(100,200,255,.4) 55%, transparent 72%),
+    linear-gradient(140deg, transparent 55%, rgba(190,120,255,.35) 72%, transparent 90%);
+  animation: auroraHarakat 6s ease-in-out infinite alternate;
+}
+@keyframes auroraHarakat {
+  from { transform: translateX(-10px) scaleY(1); }
+  to   { transform: translateX(10px) scaleY(1.05); }
+}
+
 /* Harakatlanuvchi xavf (👻 / 🧊) — to'siqlar ichida tebranadigan qo'shimcha xavf */
 .xavf {
   position: absolute; left: 14px; width: 28px; height: 28px;
@@ -224,6 +266,18 @@ body {
   color: #ffd54f; font-size: 14px; font-weight: bold;
   text-shadow: 1px 2px 3px rgba(0,0,0,.5);
 }
+#kuchHolati {
+  position: absolute; top: 126px; left: 15px; z-index: 10;
+  color: #4fc3f7; font-size: 13px; font-weight: bold;
+  text-shadow: 1px 2px 3px rgba(0,0,0,.5);
+}
+#kuchHolati.hidden { display: none; }
+.kuch-dona {
+  position: absolute; font-size: 24px; z-index: 4; pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(79,195,247,.7));
+  animation: kuchPulsatsiya 1s ease-in-out infinite;
+}
+@keyframes kuchPulsatsiya { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
 #muteBtn {
   position: absolute; top: 15px; right: 15px; z-index: 10;
   width: 38px; height: 38px; border-radius: 50%;
@@ -493,3 +547,77 @@ button.skin-dona.qulf { opacity: .4; }
 }
 .premium-input::placeholder { color: rgba(255,255,255,.5); }
 .premium-xabar { margin-top: 10px; font-size: 13px; min-height: 18px; font-weight: 700; }
+
+/* Menyudagi belgilar qatori (streak + tanga) */
+.menu-belgilar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 4px 0 2px; }
+.tanga-badge {
+  display: inline-block; margin: 0; padding: 4px 14px;
+  background: rgba(79,195,247,.18); border: 1px solid rgba(129,212,250,.5);
+  border-radius: 20px; font-size: 13px; font-weight: 700; color: #81d4fa;
+}
+.menu-belgilar .streak-badge { margin: 0; }
+
+/* Kundalik topshiriq matni (menyuda) */
+.topshiriq-matn {
+  font-size: 12.5px; color: #c5e1ff; background: rgba(79,195,247,.12);
+  border: 1px solid rgba(79,195,247,.35); border-radius: 14px;
+  padding: 6px 14px; margin: 2px 0 4px; max-width: 300px;
+}
+.topshiriq-matn.bajarilgan { color: #69f0ae; background: rgba(105,240,174,.12); border-color: rgba(105,240,174,.4); }
+
+/* O'yin tugagan ekrandagi tanga/topshiriq xabarlari */
+.tanga-xabar { color: #81d4fa; font-weight: 700; }
+.topshiriq-xabar { color: #69f0ae; font-weight: 700; }
+
+/* ---- Fon do'koni paneli ---- */
+.tanga-balans {
+  display: inline-block; margin: 6px 0 2px; padding: 5px 16px;
+  background: rgba(79,195,247,.18); border: 1px solid rgba(129,212,250,.55);
+  border-radius: 20px; font-size: 14px; font-weight: 700; color: #81d4fa;
+}
+.fon-xabar { font-size: 13px; min-height: 18px; font-weight: 700; margin-top: 6px; }
+.fonlar-royxati { width: 100%; max-width: 320px; margin-top: 8px; display: flex; flex-direction: column; gap: 10px; }
+.fon-dona {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 14px; padding: 10px; text-align: center;
+}
+.fon-dona.tanlangan { border-color: #ffd54f; box-shadow: 0 0 14px rgba(255,213,79,.35); }
+.fon-dona small { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #fff; }
+.fon-holat { display: inline-block; font-size: 12px; color: #69f0ae; font-weight: 700; }
+button.fon-tugma { margin-top: 0; font-size: 12px; padding: 7px 14px; }
+.fon-oldindan-korish {
+  width: 100%; height: 54px; border-radius: 10px; margin-bottom: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), 0 3px 8px rgba(0,0,0,.35);
+}
+.fon-oldindan-korish.fon-standart-korish {
+  background: linear-gradient(to bottom, #0b1d51, #274b8f 55%, #dfe9f5);
+}
+.fon-oldindan-korish.fon-shahar {
+  background: linear-gradient(to bottom, #050514, #1a1a4a 55%, #2d1b4e 100%);
+}
+.fon-oldindan-korish.fon-galaktika {
+  background:
+    radial-gradient(circle at 25% 25%, rgba(255,105,180,.55), transparent 50%),
+    radial-gradient(circle at 75% 35%, rgba(94,234,212,.5), transparent 55%),
+    radial-gradient(circle at 50% 85%, rgba(147,51,234,.6), transparent 60%),
+    linear-gradient(to bottom, #0a0520, #2a0f4f);
+}
+.fon-oldindan-korish.fon-shimoliy {
+  background: linear-gradient(120deg, #041225 0%, #0a3d2e 35%, #063a52 60%, #2a0f4f 100%);
+}
+
+/* ---- Global reyting paneli ---- */
+.reyting-royxati { width: 100%; max-width: 320px; max-height: 42vh; overflow-y: auto; margin-top: 6px; }
+.reyting-qatori {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 10px; padding: 7px 12px; margin-bottom: 6px; font-size: 13px;
+}
+.reyting-qatori.ozim { border-color: #ffd54f; background: rgba(255,213,79,.12); }
+.reyting-orin { width: 26px; text-align: center; font-weight: 800; flex-shrink: 0; }
+.reyting-ism { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reyting-ball { font-weight: 800; color: #ffd54f; }
+.reyting-xabar { font-size: 13px; color: rgba(255,255,255,.7); }
+.reyting-ism-blok { display: flex; gap: 8px; align-items: center; margin-top: 10px; width: 100%; max-width: 320px; }
+.reyting-ism-blok input { margin-top: 0; flex: 1; }
+.reyting-ism-blok button { margin-top: 0; white-space: nowrap; }
