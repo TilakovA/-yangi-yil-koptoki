@@ -440,8 +440,13 @@ function premiumFaollashtir() {
     try { localStorage.setItem("koptokPremium", "1"); } catch (e) {}
     document.getElementById("premiumBelgisi").classList.remove("hidden");
     skinTanlash("olmos");
+    // Premium (faqat sizda bo'lgan maxfiy kod) — barcha fonlarni ham bepul ochadi, sinash uchun
+    FONLAR.forEach(function (f) {
+      if (!fonOchiqmi(f.id)) fonlarOchilgan.push(f.id);
+    });
+    try { localStorage.setItem("koptokFonlar", JSON.stringify(fonlarOchilgan)); } catch (e) {}
     moslash();
-    xabarEl.textContent = "✅ Premium faollashtirildi! Olmos skin ochildi, o'yin endi osonroq.";
+    xabarEl.textContent = "✅ Premium faollashtirildi! Olmos skin va barcha fonlar bepul ochildi.";
     xabarEl.style.color = "#69f0ae";
     ovoz(990, 0.2, "sine");
   } else {
