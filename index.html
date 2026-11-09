@@ -52,6 +52,7 @@
       <p><b>Jonlar:</b> Klassik, Qor bo'roni va Halloween rejimida 3 ta, Tungi rejimda 4 ta jon beriladi — xato qilganingda koptok bir muddat mirillab, davom etadi. 4-darajadan to'plar tebranib yuradi, ba'zan ichida qo'shimcha harakatlanuvchi xavf (👻/🧊) ham paydo bo'ladi — tegib ketmang!</p>
       <p><b>Yutuqlar va skinlar:</b> 🏆 tugmasidan yutuqlaringizni, 🎨 tugmasidan koptok ko'rinishlarini ko'rib, ochib boring. Har kuni o'ynab 🔥 seriyangizni uzmang!</p>
       <p class="versiya">Versiya: 1.6 &bull; 2026</p>
+      <button class="liquid rejim" onclick="qollanmaKorsat()">📖 Qisqa qo'llanmani ko'rish</button>
       <button class="yopish" onclick="panelYop()">Orqaga</button>
     </div>
 
@@ -120,6 +121,17 @@
         <button class="liquid rejim" onclick="ismniSaqlash()">Saqlash</button>
       </div>
       <button class="yopish" onclick="panelYop()">Orqaga</button>
+    </div>
+
+    <!-- Qisqa qo'llanma paneli -->
+    <div id="qollanmaPanel" class="panel hidden">
+      <div id="qollanmaIchik" class="qollanma-ichik"></div>
+      <div id="qollanmaNuqtalar" class="qollanma-nuqtalar"></div>
+      <div class="qollanma-tugmalari">
+        <button id="qollanmaOrqagaTugma" class="liquid rejim" onclick="qollanmaOrqaga()">⬅️ Orqaga</button>
+        <button id="qollanmaKeyingiTugma" class="bosh-tugma" onclick="qollanmaKeyingi()">Keyingi ➡️</button>
+      </div>
+      <button class="yopish" onclick="qollanmaOtkazish()">O'tkazib yuborish</button>
     </div>
   </div>
 </div>

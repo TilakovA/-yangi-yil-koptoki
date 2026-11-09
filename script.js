@@ -688,7 +688,7 @@ function menuKorsat() {
   pauzaTugma.classList.add("hidden");
   temaYangilash();
 }
-var BARCHA_PANELLAR = ["haqidaPanel", "kontaktPanel", "yutuqlarPanel", "skinlarPanel", "premiumPanel", "fonlarPanel", "reytingPanel"];
+var BARCHA_PANELLAR = ["haqidaPanel", "kontaktPanel", "yutuqlarPanel", "skinlarPanel", "premiumPanel", "fonlarPanel", "reytingPanel", "qollanmaPanel"];
 function menuQaytish() {
   BARCHA_PANELLAR.forEach(function (pid) {
     var el = document.getElementById(pid);
@@ -1241,6 +1241,86 @@ function moslash() {
 window.addEventListener("resize", moslash);
 window.addEventListener("orientationchange", function () { setTimeout(moslash, 200); });
 
+// ---- Qisqa o'yin qo'llanmasi ----
+var QOLLANMA_KALITI = "koptokQollanmaKorildi";
+var qollanmaQadam = 0;
+var QOLLANMA_QADAMLARI = [
+  {
+    emoji: "👆",
+    sarlavha: "Boshqarish",
+    matn: "Ekranni bosib yoki probel tugmasini bosib koptokni sakrating. Konfet tayoqchalari orasidan o'tkazing!"
+  },
+  {
+    emoji: "🎁",
+    sarlavha: "Sovg'alar va shirinlik",
+    matn: "Sovg'a qutisi 🎁 — +5 ball beradi. Shirinlik 🍭 ni olsangiz, 5 soniyaga to'plar sekinlashadi."
+  },
+  {
+    emoji: "🔥",
+    sarlavha: "Combo bonus",
+    matn: "Ketma-ket 5 ta to'pdan urilmay o'tsangiz — 🔥 Combo yoqiladi va +2 ball qo'shimcha beradi!"
+  },
+  {
+    emoji: "🧲",
+    sarlavha: "Kuch-quvvatlar",
+    matn: "O'yin davomida 🧲 Magnit (sovg'alarni o'ziga tortadi) va 🛡️ Qalqon (bir marta urilishdan himoya qiladi) tasodifan paydo bo'lib turadi."
+  },
+  {
+    emoji: "💎",
+    sarlavha: "Tangalar va fonlar",
+    matn: "Har o'yindan tanga 💎 yig'asiz. Ularni 🖼️ Fonlar do'konida yangi ko'rinishlarga sarflang va 📅 kundalik topshiriqlarni bajarib ko'proq toping."
+  },
+  {
+    emoji: "🏆",
+    sarlavha: "Omad tilaymiz!",
+    matn: "Rekordingizni oshirib, global reytingda top o'ringa chiqing. Omad, o'yin boshlandi!"
+  }
+];
+function qollanmaRender() {
+  var ichik = document.getElementById("qollanmaIchik");
+  var nuqtalarEl = document.getElementById("qollanmaNuqtalar");
+  if (!ichik || !nuqtalarEl) return;
+  var qadam = QOLLANMA_QADAMLARI[qollanmaQadam];
+  ichik.innerHTML =
+    "<div class=\"qollanma-emoji\">" + qadam.emoji + "</div>" +
+    "<h2>" + qadam.sarlavha + "</h2>" +
+    "<p>" + qadam.matn + "</p>";
+  var nuqtalarHtml = "";
+  for (var i = 0; i < QOLLANMA_QADAMLARI.length; i++) {
+    nuqtalarHtml += "<span class=\"qollanma-nuqta" + (i === qollanmaQadam ? " faol" : "") + "\"></span>";
+  }
+  nuqtalarEl.innerHTML = nuqtalarHtml;
+  var orqagaTugma = document.getElementById("qollanmaOrqagaTugma");
+  var keyingiTugma = document.getElementById("qollanmaKeyingiTugma");
+  if (orqagaTugma) orqagaTugma.classList.toggle("hidden", qollanmaQadam === 0);
+  if (keyingiTugma) keyingiTugma.textContent = qollanmaQadam === QOLLANMA_QADAMLARI.length - 1 ? "Boshlaymiz! 🎉" : "Keyingi ➡️";
+}
+function qollanmaKorsat() {
+  qollanmaQadam = 0;
+  panelKorsat("qollanmaPanel");
+  qollanmaRender();
+}
+function qollanmaKeyingi() {
+  if (qollanmaQadam >= QOLLANMA_QADAMLARI.length - 1) {
+    qollanmaYakunla();
+    return;
+  }
+  qollanmaQadam++;
+  qollanmaRender();
+}
+function qollanmaOrqaga() {
+  if (qollanmaQadam <= 0) return;
+  qollanmaQadam--;
+  qollanmaRender();
+}
+function qollanmaOtkazish() {
+  qollanmaYakunla();
+}
+function qollanmaYakunla() {
+  try { localStorage.setItem(QOLLANMA_KALITI, "1"); } catch (e) {}
+  panelYop();
+}
+
 // ---- Ishga tushirish ----
 yulduzlarOsish();
 muteYangilash();
@@ -1250,3 +1330,6 @@ elementTolqinlarUlash(pauzaPanel);
 moslash();
 menuKorsat();
 yangiYilTekshir();
+var qollanmaKorilganmi = false;
+try { qollanmaKorilganmi = localStorage.getItem(QOLLANMA_KALITI) === "1"; } catch (e) {}
+if (!qollanmaKorilganmi) qollanmaKorsat();

@@ -621,3 +621,29 @@ button.fon-tugma { margin-top: 0; font-size: 12px; padding: 7px 14px; }
 .reyting-ism-blok { display: flex; gap: 8px; align-items: center; margin-top: 10px; width: 100%; max-width: 320px; }
 .reyting-ism-blok input { margin-top: 0; flex: 1; }
 .reyting-ism-blok button { margin-top: 0; white-space: nowrap; }
+
+/* ---- Qisqa o'yin qo'llanmasi ---- */
+#qollanmaPanel { z-index: 20; }
+.qollanma-ichik {
+  display: flex; flex-direction: column; align-items: center;
+  max-width: 300px; animation: qollanmaKirish .3s ease;
+}
+.qollanma-emoji {
+  font-size: 54px; line-height: 1; margin-bottom: 12px;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.4));
+}
+.qollanma-ichik h2 { font-size: 20px; margin-bottom: 10px; color: #ffd54f; }
+.qollanma-ichik p { font-size: 14px; line-height: 1.55; color: rgba(255,255,255,.9); }
+@keyframes qollanmaKirish { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.qollanma-nuqtalar { display: flex; gap: 7px; margin-top: 18px; }
+.qollanma-nuqta {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,.25); transition: all .25s ease;
+}
+.qollanma-nuqta.faol { background: #ffd54f; width: 20px; border-radius: 5px; }
+.qollanma-tugmalari {
+  display: flex; gap: 10px; align-items: center; margin-top: 20px; width: 100%; max-width: 300px;
+}
+.qollanma-tugmalari button { margin: 0; flex: 1; }
+#qollanmaOrqagaTugma.hidden { display: none; }
+#qollanmaPanel .yopish { margin-top: 14px; background: transparent; color: rgba(255,255,255,.55); border: none; font-size: 12.5px; text-decoration: underline; }
