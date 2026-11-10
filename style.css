@@ -450,11 +450,30 @@ button.liquid.tanlangan {
 /* Rejim tanlovi — gorizontal segmentli qator (planshet/katta ekranga ham sig'adi) */
 .rejim-qatori {
   display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center;
-  gap: 8px; margin-top: 12px; width: 100%; max-width: 330px;
+  gap: 9px; margin-top: 14px; width: 100%; max-width: 330px;
 }
 .rejim-qatori button.rejim {
-  flex: 1 1 90px; margin-top: 0; padding: 10px 6px;
-  font-size: 12.5px; white-space: nowrap;
+  flex: 1 1 100px; margin-top: 0; padding: 11px 6px;
+  font-size: 12.5px; white-space: nowrap; border-radius: 14px;
+}
+/* Har bir rejim o'z ichidagi temaga mos rangda — bir xillikni yo'qotish uchun */
+.rejim-qatori button.rejim[data-rejim="klassik"] {
+  background: linear-gradient(135deg, rgba(0,172,193,.6), rgba(0,96,100,.6));
+}
+.rejim-qatori button.rejim[data-rejim="boron"] {
+  background: linear-gradient(135deg, rgba(100,210,255,.6), rgba(2,100,170,.6));
+}
+.rejim-qatori button.rejim[data-rejim="tungi"] {
+  background: linear-gradient(135deg, rgba(126,87,194,.6), rgba(40,20,90,.6));
+}
+.rejim-qatori button.rejim[data-rejim="halloween"] {
+  background: linear-gradient(135deg, rgba(255,143,0,.6), rgba(74,20,140,.6));
+}
+.rejim-qatori button.rejim[data-rejim="navroz"] {
+  background: linear-gradient(135deg, rgba(236,64,122,.6), rgba(67,160,71,.6));
+}
+.rejim-qatori button.rejim[data-rejim="mustaqillik"] {
+  background: linear-gradient(135deg, rgba(30,136,229,.6), rgba(67,160,71,.6));
 }
 
 /* Ikkilamchi amallar — kichik dumaloq ikonka-tugmalar (O'yin haqida, Bog'lanish) */
