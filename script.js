@@ -9,6 +9,10 @@ var kuchHolati = document.getElementById("kuchHolati");
 var muteBtn = document.getElementById("muteBtn");
 var pauzaTugma = document.getElementById("pauzaTugma");
 var pauzaPanel = document.getElementById("pauzaPanel");
+var jonlanishPanel = document.getElementById("jonlanishPanel");
+var jonlanishVaqtEl = document.getElementById("jonlanishVaqt");
+var jonlanishTaymer = null;
+var jonlanishQoldiq = 0;
 var yangiYilBanner = document.getElementById("yangiYilBanner");
 var tunDiv = document.getElementById("tun");
 var fonQoplama = document.getElementById("fonQoplama");
@@ -44,6 +48,8 @@ var pauzada = false;
 var joriySovgalar = 0;
 var kuchlar = [];
 var magnitVaqti = 0, qalqonFaol = false;
+var JONLANISH_NARXI = 30;
+var jonlanishIshlatildi = false;
 var gravitatsiya = 0.42, sakrashKuchi = -7.6;
 var SHARCHA_RANGLARI = ["#e53935", "#43a047", "#ffd54f", "#42a5f5", "#ab47bc", "#ffffff"];
 
@@ -498,6 +504,13 @@ function sovgaOvozi()    { ovoz(660, 0.1, "sine", 860); setTimeout(function () {
 function konfetOvozi()   { ovoz(880, 0.08, "triangle", 1046); setTimeout(function () { ovoz(1046, 0.18, "triangle", 1568); }, 90); }
 function zarbaOvozi()    { ovoz(300, 0.22, "square", 90); }
 
+// ---- Titrash (vibratsiya) ----
+// Ovoz o'chirilgan bo'lsa titrash ham o'chadi (mute tugmasi ikkalasini ham boshqaradi)
+function titrat(naqsh) {
+  if (!ovozYoniq) return;
+  try { if (navigator.vibrate) navigator.vibrate(naqsh); } catch (e) {}
+}
+
 // ---- Yangi yil mo'jizasi ----
 // 31-dekabr soat 23:55 dan boshlab yuqorida sanoq banneri chiqadi.
 // Soat 00:00 bo'lib, yangi yilga o'tilganda — bir martalik tabrik animatsiyasi
@@ -754,6 +767,9 @@ function boshlash() {
   combo = 0; comboEngYuqori = 0;
   pauzada = false;
   joriySovgalar = 0;
+  jonlanishIshlatildi = false;
+  jonlanishTaymerToxtat();
+  if (jonlanishPanel) jonlanishPanel.classList.add("hidden");
   magnitVaqti = 0; qalqonFaol = false;
   kuchlar.forEach(function (k) { k.el.remove(); });
   kuchlar = [];
@@ -885,11 +901,13 @@ function tegish() {
     invuln = 60;
     koptok.classList.add("mir");
     ovoz(900, 0.15, "triangle", 500);
+    titrat(40);
     return;
   }
   jonlar--;
   combo = 0;
   jonlarYangilash();
+  titrat(jonlar <= 0 ? [60, 40, 80] : 100);
   if (jonlar <= 0) { yakunlash(); }
   else {
     invuln = 100;
@@ -1028,6 +1046,7 @@ function sikl() {
           joriySovgalar++;
           statsSaqlash();
           sovgaOvozi();
+          titrat(18);
           oshishYozuvi(85, y - 30, "+5");
           if (rejim === "klassik") {
             tunDiv.style.opacity = String(Math.min(0.38, Math.floor(ball / 10) * 0.07));
@@ -1112,10 +1131,11 @@ function sikl() {
         invuln = 60;
         koptok.classList.add("mir");
         ovoz(900, 0.15, "triangle", 500);
+        titrat(40);
         y = Math.max(0, Math.min(YER_CHEGARASI - 20, y));
         tezlik = 0;
-      } else if (jonlar <= 1) { jonlar = 0; jonlarYangilash(); yakunlash(); }
-      else { jonlar = 1; jonlarYangilash(); invuln = 100; koptok.classList.add("mir"); zarbaOvozi(); y = YER_CHEGARASI - 64; tezlik = 0; }
+      } else if (jonlar <= 1) { jonlar = 0; jonlarYangilash(); titrat([60, 40, 80]); yakunlash(); }
+      else { jonlar = 1; jonlarYangilash(); titrat(100); invuln = 100; koptok.classList.add("mir"); zarbaOvozi(); y = YER_CHEGARASI - 64; tezlik = 0; }
     }
 
     // Koptok izi
@@ -1141,9 +1161,58 @@ function sikl() {
 
 function yakunlash() {
   if (!oynayapti) return;
+  if (!jonlanishIshlatildi && tangalar >= JONLANISH_NARXI) {
+    jonlanishSoraash();
+    return;
+  }
+  yakunlashAsosiy();
+}
+
+// ---- Jonlanish (tanga evaziga davom etish) ----
+function jonlanishSoraash() {
+  pauzada = true;
+  jonlanishQoldiq = 5;
+  if (jonlanishVaqtEl) jonlanishVaqtEl.textContent = jonlanishQoldiq;
+  if (jonlanishPanel) jonlanishPanel.classList.remove("hidden");
+  jonlanishTaymerToxtat();
+  jonlanishTaymer = setInterval(function () {
+    jonlanishQoldiq--;
+    if (jonlanishVaqtEl) jonlanishVaqtEl.textContent = jonlanishQoldiq;
+    if (jonlanishQoldiq <= 0) jonlanishRad();
+  }, 1000);
+}
+function jonlanishTaymerToxtat() {
+  if (jonlanishTaymer) { clearInterval(jonlanishTaymer); jonlanishTaymer = null; }
+}
+function jonlanish() {
+  jonlanishTaymerToxtat();
+  if (jonlanishPanel) jonlanishPanel.classList.add("hidden");
+  jonlanishIshlatildi = true;
+  tangalar = Math.max(0, tangalar - JONLANISH_NARXI);
+  tangaSaqlash();
+  jonlar = 1;
+  jonlarYangilash();
+  invuln = 120;
+  koptok.classList.add("mir");
+  koptok.classList.remove("hidden");
+  y = Math.round(VIRTUAL_H / 2) - 50;
+  tezlik = 0;
+  ovoz(700, 0.2, "triangle", 1100);
+  titrat([40, 30, 60]);
+  pauzada = false;
+}
+function jonlanishRad() {
+  jonlanishTaymerToxtat();
+  if (jonlanishPanel) jonlanishPanel.classList.add("hidden");
+  pauzada = false;
+  yakunlashAsosiy();
+}
+
+function yakunlashAsosiy() {
   oynayapti = false;
   pauzaTugma.classList.add("hidden");
   yiqilishOvozi();
+  titrat(200);
   portlash();
 
   var yangiRekord = false;
@@ -1186,11 +1255,24 @@ function yakunlash() {
       "<p class=\"tanga-xabar\">\uD83D\uDC8E +" + tangaOlindi + " tanga (jami: " + tangalar + ")</p>" +
       (bajarilganTopshiriq ? "<p class=\"topshiriq-xabar\">\uD83C\uDFAF Kundalik topshiriq bajarildi! +\uD83D\uDC8E" + bajarilganTopshiriq.mukofot + "</p>" : "") +
       "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Yana o\u2019ynash</button>" +
+      "<button class=\"liquid rejim\" onclick=\"natijaniUlash()\">\uD83D\uDCE4 Ulashish</button>" +
       "<button class=\"liquid rejim\" onclick=\"menuQaytish()\">\uD83C\uDFE0 Bosh menyu</button>";
     tolqinlarniUlash();
     yutuqlarniTekshir({ ball: ball, rekord: rekord, stats: stats, comboEngYuqori: comboEngYuqori, streak: streak });
     statistikaYubor(ball);
   }, 650);
+}
+
+// ---- Natijani ulashish ----
+function natijaniUlash() {
+  var matn = "Men \"Yangi Yil Koptoki\" o'yinida " + ball + " ball to'pladim! 🎄 Sen mendan o'tolasanmi?";
+  var havola = window.location.href.split("#")[0].split("?")[0];
+  if (navigator.share) {
+    navigator.share({ title: "Yangi Yil Koptoki", text: matn, url: havola }).catch(function () {});
+  } else {
+    var tgHavola = "https://t.me/share/url?url=" + encodeURIComponent(havola) + "&text=" + encodeURIComponent(matn);
+    window.open(tgHavola, "_blank");
+  }
 }
 
 // ---- Hodisalar ----
@@ -1327,6 +1409,7 @@ muteYangilash();
 skinQollash(joriySkin);
 if (premiumOchildi) document.getElementById("premiumBelgisi").classList.remove("hidden");
 elementTolqinlarUlash(pauzaPanel);
+elementTolqinlarUlash(jonlanishPanel);
 moslash();
 menuKorsat();
 yangiYilTekshir();

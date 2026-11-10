@@ -647,3 +647,7 @@ button.fon-tugma { margin-top: 0; font-size: 12px; padding: 7px 14px; }
 .qollanma-tugmalari button { margin: 0; flex: 1; }
 #qollanmaOrqagaTugma.hidden { display: none; }
 #qollanmaPanel .yopish { margin-top: 14px; background: transparent; color: rgba(255,255,255,.55); border: none; font-size: 12.5px; text-decoration: underline; }
+
+/* ---- Jonlanish paneli ---- */
+#jonlanishPanel { z-index: 25; }
+.jonlanish-vaqt { font-size: 28px; font-weight: 800; color: #ffd54f; margin: 10px 0 4px; }
