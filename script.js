@@ -28,7 +28,9 @@ var REJIMLAR = {
   klassik:   { ikonka: "🏙️", nom: "Klassik",      boshTezlik: 2.5, oshish: 0.35, masofa: 165, jonlar: 3 },
   boron:     { ikonka: "❄️", nom: "Qor bo\u2019roni", boshTezlik: 3.5, oshish: 0.5,  masofa: 145, jonlar: 3 },
   tungi:     { ikonka: "🌙", nom: "Tungi rejim",   boshTezlik: 2.7, oshish: 0.35, masofa: 155, jonlar: 4 },
-  halloween: { ikonka: "🎃", nom: "Halloween",    boshTezlik: 3.0, oshish: 0.4,  masofa: 150, jonlar: 3 }
+  halloween:   { ikonka: "🎃", nom: "Halloween",      boshTezlik: 3.0, oshish: 0.4,  masofa: 150, jonlar: 3 },
+  navroz:      { ikonka: "🌷", nom: "Navro’z",       boshTezlik: 2.6, oshish: 0.35, masofa: 160, jonlar: 3 },
+  mustaqillik: { ikonka: "🎆", nom: "Mustaqillik",    boshTezlik: 2.8, oshish: 0.38, masofa: 155, jonlar: 3 }
 };
 var rejim = "klassik";
 
@@ -260,7 +262,7 @@ var ACHIEVEMENTS = [
   { id: "ball25",   ikon: "🌟", nom: "Yorqin natija",  tavsif: "Bir o'yinda 25 ball to'plang", shart: function (ctx) { return ctx.ball >= 25; } },
   { id: "ball50",   ikon: "💫", nom: "Usta",           tavsif: "Bir o'yinda 50 ball to'plang", shart: function (ctx) { return ctx.ball >= 50; } },
   { id: "ball100",  ikon: "👑", nom: "Afsona",         tavsif: "Bir o'yinda 100 ball to'plang", shart: function (ctx) { return ctx.ball >= 100; } },
-  { id: "rejimchi", ikon: "🗺️", nom: "Sayohatchi",     tavsif: "Barcha 4 rejimda o'ynang", shart: function (ctx) { return ctx.stats.rejimlar.length >= 4; } },
+  { id: "rejimchi", ikon: "🗺️", nom: "Sayohatchi",     tavsif: "Barcha 6 rejimda o'ynang", shart: function (ctx) { return ctx.stats.rejimlar.length >= 6; } },
   { id: "sovgachi", ikon: "🎁", nom: "Sovg'a ustasi",  tavsif: "Jami 20 ta sovg'a qutisi yig'ing", shart: function (ctx) { return ctx.stats.jamiSovgalar >= 20; } },
   { id: "kombochi", ikon: "🔥", nom: "Olov seriya",    tavsif: "Bir o'yinda 10 ta ketma-ket to'siqdan o'ting", shart: function (ctx) { return ctx.comboEngYuqori >= 10; } },
   { id: "sodiq",    ikon: "📅", nom: "Sodiq o'yinchi", tavsif: "3 kun ketma-ket o'ynang", shart: function (ctx) { return ctx.streak >= 3; } }
@@ -591,6 +593,14 @@ function qorTushir() {
     qor.className = "yarasa";
     qor.textContent = "🦇";
     qor.style.fontSize = (Math.random() * 10 + 14) + "px";
+  } else if (rejim === "navroz") {
+    qor.className = "yarasa";
+    qor.textContent = Math.random() < 0.5 ? "🌸" : "🌷";
+    qor.style.fontSize = (Math.random() * 8 + 12) + "px";
+  } else if (rejim === "mustaqillik") {
+    qor.className = "yarasa";
+    qor.textContent = ["🎆", "🎇", "✨"][Math.floor(Math.random() * 3)];
+    qor.style.fontSize = (Math.random() * 8 + 12) + "px";
   } else {
     qor.className = "qor";
     var olcham = Math.random() * 5 + 3;
@@ -667,15 +677,21 @@ function menuHtml() {
     "<button class=\"bosh-tugma\" onclick=\"boshlash()\">Boshlash</button>" +
     "<div class=\"rejim-qatori\">" +
       rejimTugmasi("klassik") + rejimTugmasi("boron") + rejimTugmasi("tungi") + rejimTugmasi("halloween") +
+      rejimTugmasi("navroz") + rejimTugmasi("mustaqillik") +
     "</div>" +
     kontaktTugmalari();
 }
 var FON_SINFLARI = ["fon-shahar", "fon-galaktika", "fon-shimoliy"];
+var BAYRAM_TEMALARI = ["tema-halloween", "tema-navroz", "tema-mustaqillik"];
 function temaYangilash() {
-  oyin.classList.remove("tema-halloween");
+  BAYRAM_TEMALARI.forEach(function (c) { oyin.classList.remove(c); });
   FON_SINFLARI.forEach(function (c) { oyin.classList.remove(c); });
   if (rejim === "halloween") {
     oyin.classList.add("tema-halloween");
+  } else if (rejim === "navroz") {
+    oyin.classList.add("tema-navroz");
+  } else if (rejim === "mustaqillik") {
+    oyin.classList.add("tema-mustaqillik");
   } else if (joriyFon !== "standart") {
     oyin.classList.add("fon-" + joriyFon);
   }

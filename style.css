@@ -97,6 +97,40 @@ body {
   background: #ff8f00;
 }
 
+/* Navro'z fon temasi — bahorgi pushti/yashil osmon */
+#oyin.tema-navroz {
+  background: linear-gradient(to bottom, #fff3e0 0%, #ffe0ec 45%, #e3f6d8 100%);
+}
+#oyin.tema-navroz .toq {
+  background:
+    linear-gradient(rgba(0,0,0,.05), rgba(0,0,0,.15)),
+    linear-gradient(180deg, #66bb6a, #2e7d32);
+  border-left: 3px solid #c2185b;
+  border-right: 3px solid #c2185b;
+  box-shadow: 0 0 14px rgba(236,64,122,.35);
+}
+#oyin.tema-navroz .past::after,
+#oyin.tema-navroz .yuqori::before {
+  background: #ec407a;
+}
+
+/* Mustaqillik kuni fon temasi — bayroq ranglari va otashinlar */
+#oyin.tema-mustaqillik {
+  background: linear-gradient(to bottom, #0b2545 0%, #123b6e 50%, #0d4d3c 100%);
+}
+#oyin.tema-mustaqillik .toq {
+  background:
+    linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.3)),
+    repeating-linear-gradient(180deg, #1e88e5 0 10px, #ffffff 10px 16px, #43a047 16px 26px, #e53935 26px 30px);
+  border-left: 3px solid #ffd54f;
+  border-right: 3px solid #ffd54f;
+  box-shadow: 0 0 14px rgba(255,213,79,.4);
+}
+#oyin.tema-mustaqillik .past::after,
+#oyin.tema-mustaqillik .yuqori::before {
+  background: #ffd54f;
+}
+
 /* ---- Fon do'koni: sotib olingan fon tangaga o'yin ichida qo'llaniladi ---- */
 #oyin.fon-shahar {
   background: linear-gradient(to bottom, #050514 0%, #121244 45%, #2b1b52 85%, #3c2465 100%);
