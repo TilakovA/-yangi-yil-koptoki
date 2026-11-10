@@ -878,14 +878,16 @@ function toqQosh() {
   }
 
   // 4-darajadan boshlab, sovg'asiz to'siqlarda — qo'shimcha harakatlanuvchi xavf
-  // (Halloween rejimida 👻 arvoh, boshqa rejimlarda 🧊 muz bo'lagi). Gap ichida
-  // mustaqil tebranadi va tegib ketsa jon kamayadi (ustunga tegish bilan bir xil).
+  // (Halloween rejimida 👻 arvoh, Qor bo'roni rejimida 🧊 muz bo'lagi, boshqa
+  // rejimlarda umuman chiqmaydi). Gap ichida mustaqil tebranadi va tegib ketsa
+  // jon kamayadi (ustunga tegish bilan bir xil).
   var daraja = Math.floor(ball / 5) + 1;
   var xavf = null;
-  if (daraja >= 4 && !sovga && Math.random() < 0.45) {
+  var xavfEmoji = rejim === "halloween" ? "👻" : rejim === "boron" ? "🧊" : null;
+  if (xavfEmoji && daraja >= 4 && !sovga && Math.random() < 0.45) {
     var xavfEl = document.createElement("div");
     xavfEl.className = "xavf";
-    xavfEl.textContent = rejim === "halloween" ? "👻" : "🧊";
+    xavfEl.textContent = xavfEmoji;
     juftlik.appendChild(xavfEl);
     xavf = { el: xavfEl, faza: Math.random() * 6.28 };
   }
